@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumper Pallet Tracker</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+    h2 { border-bottom: 2px solid #ddd; padding-bottom: 8px; margin-top: 0; }
+    h3 { margin-top: 15px; margin-bottom: 8px; font-size: 16px; color: #343a40; }
+    .hidden { display: none !important; }
+    
+    .error-msg {
+      color: #d9534f;
+      background: #fdf7f7;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: none;
+      font-weight: bold;
+      border: 1px solid #d9534f;
+    }
+    
+    /* Inputs & Buttons */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #495057;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: calc(100% - 22px);
+      margin-bottom: 12px;
+    }
+    button {
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    button.success { background-color: #28a745; }
+    button.secondary { background-color: #6c757d; }
+    button.danger { background-color: #dc3545; }
+    button:active { opacity: 0.8; }
+
+    /* Top Bar Menu Controls */
+    .top-menu-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .top-menu-bar button {
+      margin-bottom: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .sku-list {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    .sku-list span {
+      display: inline-block;
+      background: #e9ecef;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 3px;
+      font-weight: bold;
+    }
+
+    /* Summary Banner */
+    .summary-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #0056b3;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    .summary-card {
+      text-align: center;
+      background: rgba(255,255,255,0.12);
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .summary-card.full-width {
+      grid-column: span 2;
+    }
+    .summary-card label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 2px;
+    }
+    .summary-card span {
+      font-size: 18px;
+      font-weight: bold;
+      display: block;
+    }
+    .summary-card small {
+      font-size: 11px;
+      font-weight: bold;
+      color: #ffda6a;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Add SKU Bar */
+    .add-sku-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .add-sku-bar input { margin-bottom: 0; width: 65%; font-size: 14px; padding: 8px; }
+    .add-sku-bar button { margin-bottom: 0; width: 35%; padding: 8px; font-size: 14px; }
+
+    /* Horizontal Table Layout */
+    .table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    .tracker-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 13px;
+    }
+    .tracker-table th {
+      background-color: #343a40;
+      color: white;
+      padding: 8px 4px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .tracker-table td {
+      padding: 8px 4px;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+    
+    .row-tihi {
+      width: 44px !important;
+      padding: 6px 2px !important;
+      margin-bottom: 0 !important;
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px !important;
+    }
+    .row-loose {
+      width: 48px !important;
+      padding: 6px 2px !important;
+      margin-bottom: 0 !important;
+      text-align: center;
+      font-size: 13px !important;
+    }
+    .btn-pallet {
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+      width: auto;
+      margin-bottom: 0;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .read-only-val {
+      font-weight: bold;
+      font-size: 14px;
+      color: #212529;
+    }
+
+    /* Activity Log Box */
+    .log-list {
+      max-height: 250px;
+      overflow-y: auto;
+      font-size: 12px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 8px;
+      background: #fafafa;
+      text-align: left;
+    }
+    .log-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed #ddd;
+      color: #495057;
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-time {
+      font-weight: bold;
+      color: #0056b3;
+      margin-right: 6px;
+    }
+
+    /* Modal / Pop-up Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+    .modal-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .modal-card h3 { margin-top: 0; color: #0056b3; }
+    .modal-card p { font-size: 14px; color: #555; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .modal-actions button { margin-bottom: 0; }
+
+    /* Sign Out Summary Screen */
+    .signout-card {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+  </style>
+ </head>
+ <body>
+  <!-- PHASE 1: TRAILER INFO SETUP -->
+  <div id="trailer-section">
+   <h2>Trailer Manifest Setup</h2>
+   <p style="font-size:13px; color:#666;">Enter trailer information from the paperwork packet.</p>
+   <div id="error-message-1" class="error-msg"></div>
+   <label for="trailer-num-input">Trailer Number</label> <input type="text" id="trailer-num-input" placeholder="e.g., TR-8842"> <label for="manifest-boxes-input">Manifest Total Boxes</label> <input type="number" id="manifest-boxes-input" placeholder="e.g., 1450" inputmode="numeric"> <label for="manifest-pallets-input">Manifest Total Pallets</label> <input type="number" step="0.01" id="manifest-pallets-input" placeholder="e.g., 24.5" inputmode="decimal">
+   <button id="btn-to-sku-setup" class="success">Next: Add SKUs</button>
+  </div>
+  <!-- PHASE 2: SKU SETUP -->
+  <div id="setup-section" class="hidden">
+   <h2>Trailer SKU Setup</h2>
+   <p style="font-size:13px; color:#666;">Add initial SKUs now or skip to add them as you go.</p>
+   <div id="error-message-2" class="error-msg"></div>
+   <input type="text" id="sku-input" maxlength="3" placeholder="e.g., 402" pattern="\d{3}" inputmode="numeric">
+   <button id="btn-add-sku">Add SKU to List</button>
+   <div class="sku-list">
+    <strong>Current SKUs:</strong>
+    <div id="sku-tags">
+     <em>None added yet</em>
+    </div>
+   </div>
+   <button id="btn-finish-setup" class="success">Start Count</button>
+  </div>
+  <!-- PHASE 3: TRACKER VIEW -->
+  <div id="tracking-section" class="hidden">
+   <!-- TOP MENU CONTROLS -->
+   <div class="top-menu-bar">
+    <button id="btn-open-log" class="secondary">📋 View Log</button>
+    <button id="btn-end-session" class="danger">🚪 End Session</button>
+   </div>
+   <!-- OVERALL TOTALS & MANIFEST COMPARISON BANNER -->
+   <div class="summary-banner">
+    <div class="summary-card full-width">
+     <label>Trailer</label> <span id="disp-trailer-num">---</span>
+    </div>
+    <div class="summary-card">
+     <label>Total Boxes</label> <span id="grand-total-boxes">0 / 0</span> <small id="box-pct">0% Complete</small>
+    </div>
+    <div class="summary-card">
+     <label>Total Pallets</label> <span id="grand-total-pallets">0 / 0</span> <small id="pallet-pct">0% Complete</small>
+    </div>
+   </div>
+   <div class="add-sku-bar">
+    <input type="text" id="mid-sku-input" maxlength="3" placeholder="New SKU (3 digits)" pattern="\d{3}" inputmode="numeric">
+    <button id="btn-mid-add-sku">+ Add SKU</button>
+   </div>
+   <div class="table-container">
+    <table class="tracker-table">
+     <thead>
+      <tr>
+       <th>SKU</th>
+       <th>Ti/Hi</th>
+       <th>Action
+        <br>
+        <small style="font-weight:normal;">(Hold for decimal)</small></th>
+       <th>Total Pallets</th>
+       <th>Add Boxes</th>
+       <th>Total Boxes</th>
+      </tr>
+     </thead>
+     <tbody id="tracker-rows"></tbody>
+    </table>
+   </div>
+  </div>
+  <!-- PHASE 4: FINAL WORK SESSION SIGN OUT REPORT -->
+  <div id="signout-section" class="hidden">
+   <h2>Work Session Summary</h2>
+   <p style="font-size:13px; color:#666;">Trailer count session finalized.</p>
+   <div class="signout-card">
+    <h3 style="margin-top:0; color:#0056b3;" id="so-trailer">Trailer: ---</h3>
+    <p style="margin:4px 0; font-size:14px;"><strong>Total Boxes Counted:</strong> <span id="so-boxes">0 / 0</span> (<span id="so-box-pct">0%</span>)</p>
+    <p style="margin:4px 0; font-size:14px;"><strong>Total Pallets Counted:</strong> <span id="so-pallets">0 / 0</span> (<span id="so-pallet-pct">0%</span>)</p>
+   </div>
+   <div class="signout-card">
+    <h3>Session Activity Log</h3>
+    <div id="final-activity-log" class="log-list"></div>
+   </div>
+   <button id="btn-new-trailer" class="success">Start New Trailer</button>
+  </div>
+  <!-- GENERAL ACTION MODAL -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+   <div class="modal-card">
+    <h3 id="modal-title">Confirm Action</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+     <button id="modal-cancel-btn" class="secondary">Cancel</button>
+     <button id="modal-confirm-btn" class="success">Add</button>
+    </div>
+   </div>
+  </div>
+  <!-- MENU LOG MODAL -->
+  <div id="log-modal-overlay" class="modal-overlay hidden">
+   <div class="modal-card">
+    <h3>Work Session Log</h3>
+    <div id="modal-activity-log" class="log-list" style="margin-bottom:15px;"></div>
+    <button id="log-modal-close-btn" class="secondary">Close</button>
+   </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let trailerNum = '';
+      let manifestBoxes = 0;
+      let manifestPallets = 0;
+
+      let skus = [];
+      let trackingData = {};
+      let activityLogs = [];
+
+      // Section Elements
+      const trailerSection = document.getElementById('trailer-section');
+      const setupSection = document.getElementById('setup-section');
+      const trackingSection = document.getElementById('tracking-section');
+      const signoutSection = document.getElementById('signout-section');
+
+      // Trailer Inputs
+      const trailerNumInput = document.getElementById('trailer-num-input');
+      const manifestBoxesInput = document.getElementById('manifest-boxes-input');
+      const manifestPalletsInput = document.getElementById('manifest-pallets-input');
+      const btnToSkuSetup = document.getElementById('btn-to-sku-setup');
+
+      // SKU Inputs
+      const skuInput = document.getElementById('sku-input');
+      const btnAddSku = document.getElementById('btn-add-sku');
+      const btnFinish = document.getElementById('btn-finish-setup');
+      const skuTags = document.getElementById('sku-tags');
+      const trackerRows = document.getElementById('tracker-rows');
+      
+      const midSkuInput = document.getElementById('mid-sku-input');
+      const btnMidAddSku = document.getElementById('btn-mid-add-sku');
+
+      // Banner Display
+      const dispTrailerNum = document.getElementById('disp-trailer-num');
+      const grandTotalBoxes = document.getElementById('grand-total-boxes');
+      const grandTotalPallets = document.getElementById('grand-total-pallets');
+      const boxPct = document.getElementById('box-pct');
+      const palletPct = document.getElementById('pallet-pct');
+
+      // Menu & Signout Controls
+      const btnOpenLog = document.getElementById('btn-open-log');
+      const btnEndSession = document.getElementById('btn-end-session');
+      const btnNewTrailer = document.getElementById('btn-new-trailer');
+
+      // Log Modal Elements
+      const logModalOverlay = document.getElementById('log-modal-overlay');
+      const logModalCloseBtn = document.getElementById('log-modal-close-btn');
+      const modalActivityLog = document.getElementById('modal-activity-log');
+      const finalActivityLog = document.getElementById('final-activity-log');
+
+      // General Modal Elements
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+      const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+      function showError(elId, msg) {
+        const errEl = document.getElementById(elId);
+        errEl.innerText = msg;
+        errEl.style.display = 'block';
+        setTimeout(() => { errEl.style.display = 'none'; }, 3000);
+      }
+
+      // 1. TRAILER SETUP STEP
+      btnToSkuSetup.addEventListener('click', () => {
+        const tVal = trailerNumInput.value.trim();
+        if (!tVal) {
+          showError('error-message-1', 'Please enter a Trailer Number.');
+          return;
+        }
+
+        trailerNum = tVal;
+        manifestBoxes = parseInt(manifestBoxesInput.value, 10) || 0;
+        manifestPallets = parseFloat(manifestPalletsInput.value) || 0;
+
+        trailerSection.classList.add('hidden');
+        setupSection.classList.remove('hidden');
+      });
+
+      // 2. SKU SETUP STEP
+      function addSkuToList(val) {
+        if (/^\d{3}$/.test(val)) {
+          if (!skus.includes(val)) {
+            skus.push(val);
+            trackingData[val] = { ti: 0, hi: 0, pallets: 0, partialBoxes: 0 };
+            skuTags.innerHTML = skus.map(s => `<span>${s}</span>`).join('');
+            
+            if (!trackingSection.classList.contains('hidden')) {
+              appendTrackerRow(val);
+            }
+          }
+          return true;
+        } else {
+          showError('error-message-2', 'Please enter exactly 3 digits for the SKU.');
+          return false;
+        }
+      }
+
+      btnAddSku.addEventListener('click', () => {
+        if (addSkuToList(skuInput.value.trim())) {
+          skuInput.value = '';
+          skuInput.focus();
+        }
+      });
+
+      skuInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          if (addSkuToList(skuInput.value.trim())) {
+            skuInput.value = '';
+          }
+        }
+      });
+
+      btnMidAddSku.addEventListener('click', () => {
+        if (addSkuToList(midSkuInput.value.trim())) {
+          midSkuInput.value = '';
+        }
+      });
+
+      btnFinish.addEventListener('click', () => {
+        setupSection.classList.add('hidden');
+        trackingSection.classList.remove('hidden');
+        dispTrailerNum.innerText = trailerNum;
+        renderTable();
+      });
+
+      function renderTable() {
+        trackerRows.innerHTML = '';
+        skus.forEach(sku => appendTrackerRow(sku));
+        recalculateOverallTotals();
+      }
+
+      function appendTrackerRow(sku) {
+        const tr = document.createElement('tr');
+        tr.id = `row-${sku}`;
+        tr.innerHTML = `
+          <td><strong>${sku}</strong></td>
+          <td>
+            <input type="text" class="row-tihi tihi-input" data-sku="${sku}" placeholder="0/0" inputmode="numeric">
+          </td>
+          <td>
+            <button class="btn-pallet pallet-btn" data-sku="${sku}">+ Count</button>
+          </td>
+          <td>
+            <span class="read-only-val" id="count-pallet-${sku}">0</span>
+          </td>
+          <td>
+            <input type="number" class="row-loose loose-input" data-sku="${sku}" placeholder="0" inputmode="numeric">
+          </td>
+          <td>
+            <span class="read-only-val" id="total-boxes-${sku}">0</span>
+          </td>
+        `;
+        trackerRows.appendChild(tr);
+
+        const btn = tr.querySelector('.pallet-btn');
+        attachSmartButtonEvents(btn, sku);
+      }
+
+      // TIMESTAMPED LOGGING
+      function logEntry(sku, actionDescription) {
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        activityLogs.unshift({ time: timeStr, sku: sku, desc: actionDescription });
+      }
+
+      function renderLogList(containerEl) {
+        if (activityLogs.length === 0) {
+          containerEl.innerHTML = `<div style="color:#999; text-align:center; padding:10px;">No entries recorded yet</div>`;
+          return;
+        }
+
+        containerEl.innerHTML = activityLogs.map(log => `
+          <div class="log-item">
+            <span class="log-time">[${log.time}]</span>
+            <strong>SKU ${log.sku}:</strong> ${log.desc}
+          </div>
+        `).join('');
+      }
+
+      // MENU LOG MODAL HANDLERS
+      btnOpenLog.addEventListener('click', () => {
+        renderLogList(modalActivityLog);
+        logModalOverlay.classList.remove('hidden');
+      });
+
+      logModalCloseBtn.addEventListener('click', () => {
+        logModalOverlay.classList.add('hidden');
+      });
+
+      // END SESSION / SIGN OUT HANDLER
+      btnEndSession.addEventListener('click', () => {
+        if (confirm("Are you sure you want to end this trailer count session?")) {
+          trackingSection.classList.add('hidden');
+          signoutSection.classList.remove('hidden');
+
+          let grandBoxes = 0;
+          let grandPallets = 0;
+
+          skus.forEach(sku => {
+            const data = trackingData[sku];
+            const perPallet = data.ti * data.hi;
+            const boxes = Math.round((data.pallets * perPallet) + data.partialBoxes);
+            
+            grandBoxes += boxes;
+            grandPallets += data.pallets;
+            
+            if (perPallet > 0 && data.partialBoxes > 0) {
+              grandPallets += (data.partialBoxes / perPallet);
+            }
+          });
+
+          const displayPalletTotal = (grandPallets % 1 === 0) ? grandPallets : grandPallets.toFixed(2);
+          const boxPercentage = manifestBoxes > 0 ? ((grandBoxes / manifestBoxes) * 100).toFixed(1) : '0';
+          const palletPercentage = manifestPallets > 0 ? ((grandPallets / manifestPallets) * 100).toFixed(1) : '0';
+
+          document.getElementById('so-trailer').innerText = `Trailer: ${trailerNum}`;
+          document.getElementById('so-boxes').innerText = `${grandBoxes} / ${manifestBoxes}`;
+          document.getElementById('so-box-pct').innerText = `${boxPercentage}% Complete`;
+          document.getElementById('so-pallets').innerText = `${displayPalletTotal} / ${manifestPallets}`;
+          document.getElementById('so-pallet-pct').innerText = `${palletPercentage}% Complete`;
+
+          renderLogList(finalActivityLog);
+        }
+      });
+
+      btnNewTrailer.addEventListener('click', () => {
+        location.reload(); // Fresh restart for next trailer
+      });
+
+      // TAP & LONG-PRESS EVENT HANDLER
+      function attachSmartButtonEvents(button, sku) {
+        let timer = null;
+        let isLongPress = false;
+
+        const start = () => {
+          isLongPress = false;
+          timer = setTimeout(() => {
+            isLongPress = true;
+            if (navigator.vibrate) navigator.vibrate(50);
+            openDecimalModal(sku);
+          }, 500);
+        };
+
+        const cancel = () => {
+          clearTimeout(timer);
+        };
+
+        button.addEventListener('touchstart', start, { passive: true });
+        button.addEventListener('touchend', (e) => {
+          cancel();
+          if (!isLongPress) {
+            openTapModal(sku);
+          }
+          e.preventDefault();
+        });
+        button.addEventListener('touchcancel', cancel);
+
+        button.addEventListener('mousedown', start);
+        button.addEventListener('mouseup', cancel);
+        button.addEventListener('mouseleave', cancel);
+        
+        button.addEventListener('click', (e) => {
+          if (e.pointerType === 'mouse' && !isLongPress) {
+            openTapModal(sku);
+          }
+        });
+      }
+
+      // 1. TAP POPUP (+1 Pallet)
+      function openTapModal(sku) {
+        const data = trackingData[sku];
+        if (data.ti === 0 || data.hi === 0) {
+          alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
+          return;
+        }
+
+        const addedBoxes = data.ti * data.hi;
+        modalTitle.innerText = `SKU: ${sku}`;
+        modalBody.innerHTML = `
+          <p>Add <strong>1 Full Pallet</strong> (${addedBoxes} boxes)?</p>
+        `;
+        modalConfirmBtn.className = "success";
+        modalConfirmBtn.innerText = "+ Add 1 Pallet";
+        modalConfirmBtn.onclick = () => {
+          trackingData[sku].pallets += 1;
+          logEntry(sku, `Added +1 Full Pallet (${addedBoxes} boxes)`);
+          updateRowTotals(sku);
+          closeModal();
+        };
+        modalOverlay.classList.remove('hidden');
+      }
+
+      // 2. LONG-PRESS POPUP (AUTO-DECIMAL)
+      function openDecimalModal(sku) {
+        const data = trackingData[sku];
+        const perPallet = data.ti * data.hi;
+
+        if (perPallet === 0) {
+          alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
+          return;
+        }
+
+        modalTitle.innerText = `Partial Pallet: SKU ${sku}`;
+        modalBody.innerHTML = `
+          <p style="font-size:12px; margin-bottom:8px;">1 Pallet = <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p>
+          <label style="display:block; text-align:left; font-size:12px; font-weight:bold; margin-bottom:4px;">Enter Decimal Portion:</label>
+          <input type="text" id="decimal-input" value="." inputmode="decimal">
+          
+          <div id="calc-preview" style="font-size:13px; font-weight:bold; color:#0056b3; margin-top:5px; height:20px;"></div>
+        `;
+
+        const decimalInput = document.getElementById('decimal-input');
+        const calcPreview = document.getElementById('calc-preview');
+
+        decimalInput.addEventListener('input', () => {
+          let raw = decimalInput.value.replace(/[^0-9]/g, '');
+          decimalInput.value = '.' + raw;
+          
+          const num = parseFloat(decimalInput.value);
+          if (!isNaN(num) && num > 0 && num < 1) {
+            const addedBoxes = Math.round(num * perPallet);
+            calcPreview.innerText = `= ${num} Pallet (${addedBoxes} Boxes)`;
+          } else {
+            calcPreview.innerText = '';
+          }
+        });
+
+        modalConfirmBtn.className = "success";
+        modalConfirmBtn.innerText = "Confirm Partial Pallet";
+        modalConfirmBtn.onclick = () => {
+          const num = parseFloat(decimalInput.value);
+
+          if (!isNaN(num) && num > 0 && num < 1) {
+            const addedBoxes = Math.round(num * perPallet);
+            trackingData[sku].pallets += num;
+            logEntry(sku, `Added +${num} Partial Pallet (${addedBoxes} boxes)`);
+            updateRowTotals(sku);
+            closeModal();
+          } else {
+            alert('Please enter a valid decimal fraction (e.g., .5).');
+          }
+        };
+
+        modalOverlay.classList.remove('hidden');
+        setTimeout(() => {
+          decimalInput.focus();
+          decimalInput.setSelectionRange(1, 1);
+        }, 100);
+      }
+
+      function closeModal() {
+        modalOverlay.classList.add('hidden');
+      }
+
+      modalCancelBtn.addEventListener('click', closeModal);
+
+      // RECALCULATIONS & PERCENTAGES
+      function updateRowTotals(sku) {
+        const data = trackingData[sku];
+        const perPallet = data.ti * data.hi;
+        
+        const totalBoxes = Math.round((data.pallets * perPallet) + data.partialBoxes);
+        const displayPallets = (data.pallets % 1 === 0) ? data.pallets : data.pallets.toFixed(2);
+
+        document.getElementById(`count-pallet-${sku}`).innerText = displayPallets;
+        document.getElementById(`total-boxes-${sku}`).innerText = totalBoxes;
+
+        recalculateOverallTotals();
+      }
+
+      function recalculateOverallTotals() {
+        let grandBoxes = 0;
+        let grandPallets = 0;
+
+        skus.forEach(sku => {
+          const data = trackingData[sku];
+          const perPallet = data.ti * data.hi;
+          const boxes = Math.round((data.pallets * perPallet) + data.partialBoxes);
+          
+          grandBoxes += boxes;
+          grandPallets += data.pallets;
+          
+          if (perPallet > 0 && data.partialBoxes > 0) {
+            grandPallets += (data.partialBoxes / perPallet);
+          }
+        });
+
+        const displayPalletTotal = (grandPallets % 1 === 0) ? grandPallets : grandPallets.toFixed(2);
+
+        grandTotalBoxes.innerText = `${grandBoxes} / ${manifestBoxes}`;
+        grandTotalPallets.innerText = `${displayPalletTotal} / ${manifestPallets}`;
+
+        const boxPercentage = manifestBoxes > 0 ? ((grandBoxes / manifestBoxes) * 100).toFixed(1) : '0';
+        const palletPercentage = manifestPallets > 0 ? ((grandPallets / manifestPallets) * 100).toFixed(1) : '0';
+
+        boxPct.innerText = `${boxPercentage}% Complete`;
+        palletPct.innerText = `${palletPercentage}% Complete`;
+      }
+
+      // Add Boxes Input (Submits and blurs on Enter)
+      trackingSection.addEventListener('keydown', (e) => {
+        if (e.target.classList.contains('loose-input') && e.key === 'Enter') {
+          e.preventDefault();
+          e.target.blur();
+        }
+      });
+
+      trackingSection.addEventListener('change', (e) => {
+        if (e.target.classList.contains('loose-input')) {
+          const sku = e.target.getAttribute('data-sku');
+          const val = parseInt(e.target.value, 10);
+          const newBoxes = !isNaN(val) && val >= 0 ? val : 0;
+          
+          if (newBoxes !== trackingData[sku].partialBoxes) {
+            trackingData[sku].partialBoxes = newBoxes;
+            logEntry(sku, `Updated loose box count to ${newBoxes}`);
+            updateRowTotals(sku);
+          }
+        }
+      });
+
+      // Smart Ti/Hi input handler
+      trackingSection.addEventListener('keydown', (e) => {
+        if (e.target.classList.contains('tihi-input')) {
+          const el = e.target;
+          let val = el.value;
+
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (!val.includes('/') && val.length > 0) {
+              el.value = val + '/';
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+              el.blur();
+            }
+            return;
+          }
+
+          if (e.key === ' ' || e.key === '/') {
+            e.preventDefault();
+            if (!val.includes('/') && val.length > 0) {
+              el.value = val + '/';
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }
+
+          if (e.key === 'Backspace') {
+            const pos = el.selectionStart;
+            if (pos > 0 && val[pos - 1] === '/') {
+              e.preventDefault();
+              el.value = val.slice(0, pos - 1) + val.slice(pos);
+              el.setSelectionRange(pos - 1, pos - 1);
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }
+        }
+      });
+
+      trackingSection.addEventListener('input', (e) => {
+        if (e.target.classList.contains('tihi-input')) {
+          const el = e.target;
+          let val = el.value.replace(/[^0-9/]/g, '');
+          const sku = el.getAttribute('data-sku');
+
+          let parts = val.split('/');
+          let ti = parts[0] || '';
+          let hi = parts.length > 1 ? parts.slice(1).join('') : null;
+
+          if (hi === null && ti.length > 2) {
+            hi = ti.slice(2, 4);
+            ti = ti.slice(0, 2);
+          } else {
+            if (ti.length > 2) ti = ti.slice(0, 2);
+            if (hi !== null && hi.length > 2) hi = hi.slice(0, 2);
+          }
+
+          el.value = hi !== null ? `${ti}/${hi}` : ti;
+
+          const match = el.value.match(/^(\d{1,2})\/(\d{1,2})$/);
+          if (match) {
+            const newTi = parseInt(match[1], 10);
+            const newHi = parseInt(match[2], 10);
+
+            if (newTi !== trackingData[sku].ti || newHi !== trackingData[sku].hi) {
+              trackingData[sku].ti = newTi;
+              trackingData[sku].hi = newHi;
+              logEntry(sku, `Set Ti/Hi pattern to ${newTi}/${newHi}`);
+              updateRowTotals(sku);
+            }
+          }
+        }
+      });
+    });
+  </script>
+ </body>
+</html>
