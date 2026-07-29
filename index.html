@@ -37,14 +37,24 @@ body.light-theme {
   --table-border: #c4c8bb;
   --badge-bg: #e5e6df;
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--bg-color);
+}
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-color);
   color: var(--text-color);
   max-width: 650px;
   margin: 0 auto;
   padding: 12px;
+  min-height: 100vh;
   transition: background-color 0.2s, color 0.2s;
+}
+@media (max-width: 768px) {
+  body.light-theme {
+    background-color: #c7c9c3;
+  }
 }
 .start-screen-title .app-title {
   color: #33402f;
@@ -168,6 +178,21 @@ h3 {
   flex: 1;
   justify-content: center;
   gap: 10px;
+}
+.header-action-btn {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: auto;
+  margin-bottom: 0;
+  font-weight: bold;
+}
+.header-action-btn.hidden {
+  display: none !important;
 }
 .header-name {
   color: var(--primary);
@@ -662,14 +687,16 @@ input[type=number] { -moz-appearance: textfield; }
   <div class="header-center">
     <span id="disp-trailer-num" class="header-door">DOOR ---</span>
   </div>
-  <div class="header-right" style="position:relative; margin-left: auto;">
+  <div class="header-right" style="position:relative; margin-left: auto; gap: 8px;">
+    <button id="btn-undo-action" class="header-action-btn hidden" type="button">Undo</button>
     <button id="hamburger-menu-btn" class="hamburger-btn">☰</button>
     <div id="dropdown-menu" class="dropdown-menu">
       <button id="menu-item-log" class="dropdown-item">📋 View Timestamps</button>
       <button id="menu-item-senders-count" class="dropdown-item hidden">📦 Sender's Count</button>
       <button id="menu-item-theme" class="dropdown-item">🌓 Toggle Light/Dark Mode</button>
       <div id="menu-active-session-divider" class="dropdown-divider hidden"></div>
-      <button id="menu-item-endsession" class="dropdown-item danger hidden" style="color:var(--danger);">🚪 End Session</button>
+      <button id="menu-item-endsession" class="dropdown-item hidden">🚪 End Session</button>
+    </div>
     </div>
   </div>
 </div>
@@ -691,8 +718,8 @@ input[type=number] { -moz-appearance: textfield; }
   <label for="door-num-input">Door</label>
   <input type="number" id="door-num-input" placeholder="" inputmode="numeric" pattern="\d{1,3}" maxlength="3">
   
-  <div style="display:flex; justify-content:flex-end; gap: 8px; margin-top:4px; max-width: 100%;">
-    <button id="btn-to-sku-setup" class="success hidden" style="width:auto; padding:10px 18px;">Next</button>
+  <div style="display:flex; justify-content:space-between; gap: 8px; margin-top:4px; max-width: 100%; flex-wrap: wrap;">
+    <button id="btn-view-history" class="secondary" type="button" style="width:auto; padding:12px 18px;">Work History</button>
     <button id="btn-skip-name-door" class="btn-skip-option" type="button">Skip</button>
   </div>
 </div>
@@ -857,6 +884,7 @@ input[type=number] { -moz-appearance: textfield; }
     <div id="modal-body"></div>
     <div class="modal-actions">
       <button id="modal-cancel-btn" class="secondary">Cancel</button>
+      <button id="modal-secondary-btn" class="secondary">Start New</button>
       <button id="modal-confirm-btn" class="success">Add</button>
     </div>
   </div>
@@ -874,6 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let trackingData = {};
   let activityLogs = [];
   let currentSection = 'trailer-section';
+  let lastUndoState = null;
 
   // UI Elements
   const bodyEl = document.body;
@@ -895,8 +924,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const doorNumInput = document.getElementById('door-num-input');
   const workerNameLabel = document.querySelector('label[for="worker-name-input"]');
   const doorNumLabel = document.querySelector('label[for="door-num-input"]');
-  const btnToSkuSetup = document.getElementById('btn-to-sku-setup');
+  const btnViewHistory = document.getElementById('btn-view-history');
   const btnSkipNameDoor = document.getElementById('btn-skip-name-door');
+  const btnUndoAction = document.getElementById('btn-undo-action');
   const btnBackToTrailer = document.getElementById('btn-back-to-trailer');
   const btnBackFromHistory = document.getElementById('btn-back-from-history');
   
@@ -937,6 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalTitle = document.getElementById('modal-title');
   const modalBody = document.getElementById('modal-body');
   const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+  const modalSecondaryBtn = document.getElementById('modal-secondary-btn');
   const modalCancelBtn = document.getElementById('modal-cancel-btn');
   const sendersCountModalOverlay = document.getElementById('senders-count-modal-overlay');
   const modalManifestBoxesInput = document.getElementById('modal-manifest-boxes-input');
@@ -996,6 +1027,24 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       btnSkipNameDoor.classList.add('hidden');
     }
+  }
+
+  function updateHeaderPreview() {
+    const previewName = workerNameInput.value.trim();
+    const previewDoor = doorNumInput.value.trim();
+    dispTrailerName.innerText = previewName ? previewName.toUpperCase() : 'WORKER';
+    if (previewDoor) {
+      dispTrailerNum.innerText = `DOOR ${previewDoor}`;
+      dispTrailerNum.classList.remove('hidden');
+    } else {
+      dispTrailerNum.classList.add('hidden');
+    }
+    if (currentSection === 'trailer-section' && (previewName || previewDoor)) {
+      appHeaderBar.classList.remove('hidden');
+    } else if (currentSection === 'trailer-section' && !skipNameDoorMode) {
+      appHeaderBar.classList.add('hidden');
+    }
+    btnSkipNameDoor.innerText = (previewName || previewDoor) ? 'Next' : 'Skip';
   }
 
   menuItemSendersCount.addEventListener('click', () => {
@@ -1119,6 +1168,9 @@ document.addEventListener('DOMContentLoaded', () => {
       appHeaderBar.classList.add('hidden');
     }
     document.getElementById(sectionId).classList.remove('hidden');
+    if (sectionId === 'trailer-section') {
+      updateHeaderPreview();
+    }
     updateMenuVisibility();
     updateSkipButtonVisibility();
     saveState();
@@ -1141,13 +1193,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { errEl.style.display = 'none'; }, 3000);
   }
 
-  function toggleNextButtonVisibility() {
-    const hasName = workerNameInput.value.trim().length > 0;
-    const hasDoor = doorNumInput.value.trim().length > 0;
-    btnToSkuSetup.classList.toggle('hidden', !(hasName && hasDoor));
+  function updateStartScreenPreview() {
+    updateHeaderPreview();
   }
 
-  workerNameInput.addEventListener('input', toggleNextButtonVisibility);
+  workerNameInput.addEventListener('input', updateStartScreenPreview);
+  doorNumInput.addEventListener('input', () => {
+    let val = doorNumInput.value.replace(/\D/g, '');
+    if (val.length > 3) val = val.slice(0, 3);
+    doorNumInput.value = val;
+    updateStartScreenPreview();
+  });
+
+  btnViewHistory.addEventListener('click', () => {
+    renderWorkHistory();
+    switchSection('history-section');
+  });
+
   workerNameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -1158,21 +1220,51 @@ document.addEventListener('DOMContentLoaded', () => {
   doorNumInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (!btnToSkuSetup.classList.contains('hidden')) {
-        btnToSkuSetup.click();
-      } else {
-        doorNumInput.blur();
-      }
+      doorNumInput.blur();
     }
   });
-  doorNumInput.addEventListener('input', () => {
-    let val = doorNumInput.value.replace(/\D/g, '');
-    if (val.length > 3) val = val.slice(0, 3);
-    doorNumInput.value = val;
-    toggleNextButtonVisibility();
-  });
 
-  toggleNextButtonVisibility();
+  updateStartScreenPreview();
+
+  function captureUndoState(label) {
+    lastUndoState = {
+      skus: [...skus],
+      trackingData: JSON.parse(JSON.stringify(trackingData)),
+      activityLogs: JSON.parse(JSON.stringify(activityLogs)),
+      topActivity: topActivityTicker.innerHTML,
+      undoLabel: label
+    };
+    if (btnUndoAction) btnUndoAction.classList.remove('hidden');
+  }
+
+  function clearUndoState() {
+    lastUndoState = null;
+    if (btnUndoAction) btnUndoAction.classList.add('hidden');
+  }
+
+  function restoreUndoState() {
+    if (!lastUndoState) return;
+    skus = [...lastUndoState.skus];
+    trackingData = JSON.parse(JSON.stringify(lastUndoState.trackingData));
+    activityLogs = JSON.parse(JSON.stringify(lastUndoState.activityLogs));
+    topActivityTicker.innerHTML = lastUndoState.topActivity;
+    renderSkuTags();
+    if (currentSection === 'tracking-section') renderTable();
+    renderLogModalList();
+    saveState();
+    clearUndoState();
+  }
+
+  btnUndoAction.addEventListener('click', () => {
+    if (!lastUndoState) return;
+    openConfirmModal(
+      'Undo Last Action',
+      `<p>Undo this action?</p><p style="font-weight:bold; margin-top:10px;">${lastUndoState.undoLabel}</p>`,
+      'Undo',
+      restoreUndoState,
+      'Cancel'
+    );
+  });
 
   function findRecentHistoryByDoor(doorValue) {
     if (!doorValue) return null;
@@ -1342,19 +1434,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 1. TRAILER SETUP STEP
-  btnToSkuSetup.addEventListener('click', () => {
-    const wVal = workerNameInput.value.trim();
-    const dVal = doorNumInput.value.trim();
-    if (!wVal) {
-      showError('error-message-1', 'Please enter your Worker Name');
-      return;
-    }
-    if (!dVal) {
-      showError('error-message-1', 'Please enter a valid Door Number');
-      return;
-    }
-    initializeSessionFromStartScreen();
-  });
 
   btnBackToTrailer.addEventListener('click', () => {
     workerNameInput.value = workerName;
@@ -1363,17 +1442,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnSkipNameDoor.addEventListener('click', () => {
-    skipNameDoorMode = true;
-    appHeaderBar.classList.add('hidden');
-    saveState();
+    const wVal = workerNameInput.value.trim();
     const dVal = doorNumInput.value.trim();
-    const matchedRecord = findRecentHistoryByDoor(dVal);
-    if (matchedRecord) {
-      startNewSessionWithPreviousSkus(workerNameInput.value.trim(), dVal, matchedRecord);
-    } else {
-      renderSkuTags();
-      switchSection('setup-section');
+    if (!wVal && !dVal) {
+      skipNameDoorMode = true;
+      saveState();
+      startNewSession('', '');
+      return;
     }
+
+    const matchedRecord = findRecentHistoryByDoor(dVal);
+    if (!matchedRecord) {
+      skipNameDoorMode = false;
+      saveState();
+      startNewSession(wVal, dVal);
+      return;
+    }
+
+    openThreeOptionModal(
+      `Door #${dVal} Found in Recent History`,
+      `<p>A recent session for Door #${dVal} was found. Choose how to continue.</p>`,
+      'Continue Door',
+      () => restorePreviousDoorSession(matchedRecord),
+      'Start New',
+      () => {
+        skipNameDoorMode = false;
+        saveState();
+        startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord);
+      },
+      'Cancel'
+    );
   });
 
   // 2. SKU SETUP STEP
@@ -1410,6 +1508,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function deleteSku(skuToDelete) {
     if (confirm(`Are you sure you want to delete SKU ${skuToDelete}?`)) {
+      captureUndoState(`Deleted SKU ${skuToDelete}`);
       skus = skus.filter(s => s !== skuToDelete);
       delete trackingData[skuToDelete];
       renderSkuTags();
@@ -1488,6 +1587,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalBody.innerHTML = `<div class="modal-sku-label">Current SKU</div><div class="modal-sku-number">${sku}</div><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Change SKU Number (3 digits)</label><input type="text" id="modal-edit-sku-input" maxlength="3" value="${sku}" pattern="\\d{3}" inputmode="numeric" style="margin-bottom:0;"></div><button id="modal-delete-sku-btn" class="danger" style="margin-top:10px; width:100%;">🗑️ Delete SKU from Tracker</button>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Save Changes";
+    setModalActionButtons({ showConfirm: true, showSecondary: false });
     modalConfirmBtn.onclick = () => {
       const newSkuVal = document.getElementById('modal-edit-sku-input').value.trim();
       if (/^\d{3}$/.test(newSkuVal)) {
@@ -1496,6 +1596,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         if (newSkuVal !== sku) {
+          captureUndoState(`Renamed SKU ${sku} to ${newSkuVal}`);
           skus = skus.map(s => s === sku ? newSkuVal : s);
           trackingData[newSkuVal] = trackingData[sku];
           delete trackingData[sku];
@@ -1693,12 +1794,13 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
       return;
     }
-    const addedBoxes = data.ti * data.hi;
     modalTitle.innerText = "+1 Completed Pallet";
     modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Confirm";
+    setModalActionButtons({ showConfirm: true, showSecondary: false });
     modalConfirmBtn.onclick = () => {
+      captureUndoState(`Added one pallet to SKU ${sku}`);
       trackingData[sku].fullPallets += 1;
       updateRowTotals(sku);
       logEntry(sku, "+1 pallet");
@@ -1718,6 +1820,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Standard Pallet: <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Unique Pallet (Ti/Hi)</label><input type="text" id="modal-unique-pallet" class="modal-tihi-input" placeholder="0/0" inputmode="numeric" style="margin-bottom:0;"><div class="tihi-box-calc" id="modal-tihi-calc" style="text-align:left; margin-top:4px; min-height:16px;"></div></div><div style="text-align:left; margin-bottom:5px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Single / Loose Boxes</label><input type="number" id="modal-single-boxes" placeholder="e.g., 5" inputmode="numeric" style="margin-bottom:0;"></div>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Confirm Count";
+    setModalActionButtons({ showConfirm: true, showSecondary: false });
     modalConfirmBtn.onclick = () => {
       const actionParts = [];
       const uniqueValStr = document.getElementById('modal-unique-pallet').value;
@@ -1729,12 +1832,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const uHi = parseInt(match[2], 10);
         const uBoxes = uTi * uHi;
         if (uBoxes > 0) {
+          captureUndoState(`Added unique pallet ${uTi}/${uHi} (${uBoxes} boxes) to SKU ${sku}`);
           trackingData[sku].partialPallets.push(uBoxes);
           actionParts.push('+1 partial pallet');
           updated = true;
         }
       }
       if (!isNaN(singleVal) && singleVal > 0) {
+        if (!updated) captureUndoState(`Added ${singleVal} loose boxes to SKU ${sku}`);
         trackingData[sku].partialBoxes += singleVal;
         actionParts.push(`+${singleVal} boxes`);
         updated = true;
@@ -1761,6 +1866,47 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('hidden');
   }
   modalCancelBtn.addEventListener('click', closeModal);
+
+  function setModalActionButtons({ showConfirm = true, showSecondary = false } = {}) {
+    modalConfirmBtn.style.display = showConfirm ? '' : 'none';
+    modalSecondaryBtn.style.display = showSecondary ? '' : 'none';
+    modalCancelBtn.style.display = '';
+  }
+
+  function openConfirmModal(title, bodyHtml, confirmLabel, confirmAction, cancelLabel = 'Cancel') {
+    modalTitle.innerText = title;
+    modalBody.innerHTML = bodyHtml;
+    modalConfirmBtn.className = 'success';
+    modalConfirmBtn.innerText = confirmLabel;
+    modalConfirmBtn.onclick = () => {
+      closeModal();
+      confirmAction();
+    };
+    modalSecondaryBtn.onclick = null;
+    setModalActionButtons({ showConfirm: true, showSecondary: false });
+    modalCancelBtn.innerText = cancelLabel;
+    modalOverlay.classList.remove('hidden');
+  }
+
+  function openThreeOptionModal(title, bodyHtml, primaryLabel, primaryAction, secondaryLabel, secondaryAction, cancelLabel = 'Cancel') {
+    modalTitle.innerText = title;
+    modalBody.innerHTML = bodyHtml;
+    modalConfirmBtn.className = 'success';
+    modalConfirmBtn.innerText = primaryLabel;
+    modalConfirmBtn.onclick = () => {
+      closeModal();
+      primaryAction();
+    };
+    modalSecondaryBtn.className = 'secondary';
+    modalSecondaryBtn.innerText = secondaryLabel;
+    modalSecondaryBtn.onclick = () => {
+      closeModal();
+      secondaryAction();
+    };
+    setModalActionButtons({ showConfirm: true, showSecondary: true });
+    modalCancelBtn.innerText = cancelLabel;
+    modalOverlay.classList.remove('hidden');
+  }
 
   function closeSendersCountModal() {
     sendersCountModalOverlay.classList.add('hidden');
