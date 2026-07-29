@@ -319,7 +319,10 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type=number] { -moz-appearance: textfield; }
+input[type=number] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
 /* Collapsible Sections */
 .collapsible-container {
   background: var(--card-bg);
@@ -407,6 +410,10 @@ input[type=number] { -moz-appearance: textfield; }
   color: #fbbf24;
   display: block;
   margin-top: 2px;
+}
+body.light-theme #box-pct,
+body.light-theme #pallet-pct {
+  color: #2f8f46;
 }
 /* Activity Ticker Bar */
 .activity-ticker {
@@ -509,6 +516,27 @@ input[type=number] { -moz-appearance: textfield; }
   display: inline-block;
   user-select: none;
 }
+.sku-square.flash-green {
+  animation: skuSquareFlashGreen 1s ease-in-out 1;
+}
+@keyframes skuSquareFlashGreen {
+  0% {
+    background: var(--badge-bg);
+    color: var(--text-color);
+  }
+  35% {
+    background: #2f8f46;
+    color: #ffffff;
+  }
+  70% {
+    background: #2f8f46;
+    color: #ffffff;
+  }
+  100% {
+    background: var(--badge-bg);
+    color: var(--text-color);
+  }
+}
 .row-tihi {
   width: 55px !important;
   padding: 6px 2px !important;
@@ -516,15 +544,56 @@ input[type=number] { -moz-appearance: textfield; }
   text-align: center;
   font-weight: bold;
   font-size: 13px !important;
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--text-color) !important;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-color);
   border-radius: 4px;
 }
 .row-tihi:focus {
-  border: 1px solid var(--primary) !important;
-  background: var(--input-bg) !important;
+  border: 1px solid var(--primary);
+  background: var(--input-bg);
   outline: none;
+}
+.row-tihi.flash-invert {
+  animation: tihiInvertFlash 1s ease-in-out 1;
+}
+@keyframes tihiInvertFlash {
+  0% {
+    background: transparent;
+    color: var(--text-color);
+    border-color: transparent;
+    opacity: 1;
+  }
+  15% {
+    background: #000000;
+    color: #ffffff;
+    border-color: #ffffff;
+    opacity: 1;
+  }
+  30% {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+    opacity: 0.96;
+  }
+  45% {
+    background: #000000;
+    color: #ffffff;
+    border-color: #ffffff;
+    opacity: 1;
+  }
+  60% {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+    opacity: 0.96;
+  }
+  100% {
+    background: transparent;
+    color: var(--text-color);
+    border-color: transparent;
+    opacity: 1;
+  }
 }
 .tihi-box-calc {
   font-size: 10px;
@@ -1126,6 +1195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startTime = state.startTime || null;
         skus = state.skus || [];
         trackingData = state.trackingData || {};
+        normalizeTrackingData();
         activityLogs = state.activityLogs || [];
         skipNameDoorMode = state.skipNameDoorMode || false;
         if (state.currentSection && state.currentSection !== 'trailer-section' && state.currentSection !== 'setup-section') {
@@ -1294,6 +1364,41 @@ document.addEventListener('DOMContentLoaded', () => {
     startNewSession(wVal, dVal);
   }
 
+  function createTrackingEntry(seed = {}) {
+    return {
+      ti: Number(seed.ti) || 0,
+      hi: Number(seed.hi) || 0,
+      fullPallets: Number(seed.fullPallets) || 0,
+      partialPallets: Array.isArray(seed.partialPallets) ? [...seed.partialPallets] : [],
+      partialBoxes: Number(seed.partialBoxes) || 0,
+      carryBoxes: Number(seed.carryBoxes) || 0,
+      carryPallets: Number(seed.carryPallets) || 0,
+      eventLog: Array.isArray(seed.eventLog) ? [...seed.eventLog] : []
+    };
+  }
+
+  function normalizeTrackingData() {
+    skus.forEach(sku => {
+      trackingData[sku] = createTrackingEntry(trackingData[sku] || {});
+    });
+  }
+
+  function getTiHiString(data) {
+    return data.ti > 0 && data.hi > 0 ? `${data.ti}/${data.hi}` : '-';
+  }
+
+  function recordSkuEvent(sku, type, detail, tiHiAtMoment) {
+    const data = trackingData[sku];
+    if (!data) return;
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    data.eventLog.unshift({
+      time,
+      type,
+      detail,
+      tihi: tiHiAtMoment || getTiHiString(data)
+    });
+  }
+
   function startNewSession(workerNameValue, doorValue) {
     workerName = workerNameValue.toUpperCase();
     doorNum = doorValue;
@@ -1317,7 +1422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     skus = record.skus ? [...record.skus] : [];
     trackingData = {};
     skus.forEach(sku => {
-      trackingData[sku] = { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      trackingData[sku] = createTrackingEntry();
     });
     activityLogs = [];
     updateMenuVisibility();
@@ -1333,6 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startTime = record.timestamp || Date.now();
     skus = record.skus ? [...record.skus] : [];
     trackingData = record.trackingData ? JSON.parse(JSON.stringify(record.trackingData)) : {};
+    normalizeTrackingData();
     activityLogs = Array.isArray(record.activityLogs) && record.activityLogs.length > 0
       ? JSON.parse(JSON.stringify(record.activityLogs))
       : [{ time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), sku: '---', desc: `Continued Door #${doorNum}` }];
@@ -1421,7 +1527,27 @@ document.addEventListener('DOMContentLoaded', () => {
       html += `<div class="history-day-group"><div class="history-day-title">📅 ${dateKey}</div>`;
       items.forEach(h => {
         const displayName = (h.workerName || 'UNKNOWN').toUpperCase();
-        html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>Door #${h.doorNum} — ${displayName}</span><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div></div>`;
+        const skuTotals = [];
+        const skuTracking = h.trackingData || {};
+        (h.skus || []).forEach(sku => {
+          const data = createTrackingEntry(skuTracking[sku] || {});
+          const perPallet = (data.ti || 0) * (data.hi || 0);
+          const partialSum = (data.partialPallets || []).reduce((a, b) => a + b, 0);
+          const skuTotalBoxes = (data.carryBoxes || 0) + ((data.fullPallets || 0) * perPallet) + partialSum + (data.partialBoxes || 0);
+          skuTotals.push(`<span style="display:inline-block; margin-right:8px;">SKU <strong>${sku}</strong>: <strong>${skuTotalBoxes}</strong></span>`);
+        });
+
+        const skuDrilldowns = (h.skus || []).map(sku => {
+          const skuLogs = (h.activityLogs || []).filter(log => String(log.sku) === String(sku));
+          const logRows = skuLogs.length === 0
+            ? `<div style="font-size:12px; color:var(--text-muted);">No timestamped changes saved for this SKU.</div>`
+            : skuLogs.map(log => `<div style="font-size:12px; margin-bottom:4px;"><strong>[${log.time}]</strong> ${log.desc}${typeof log.totalBoxes === 'number' ? ` <span style=\"color:var(--text-muted);\">(${log.totalBoxes} total)</span>` : ''}</div>`).join('');
+          return `<details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">SKU ${sku} changes (${skuLogs.length})</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color);">${logRows}</div></details>`;
+        }).join('');
+
+        const historyActions = (h.activityLogs || []).map(log => `<div style="font-size:12px; margin-bottom:4px;"><strong>[${log.time}]</strong> SKU ${log.sku}: ${log.desc}${typeof log.totalBoxes === 'number' ? ` <span style=\"color:var(--text-muted);\">(${log.totalBoxes} total)</span>` : ''}</div>`).join('');
+
+        html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>Door #${h.doorNum} — ${displayName}</span><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px; flex-wrap:wrap;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div><div style="font-size:12px; margin-top:8px; color:var(--text-color);">${skuTotals.join('')}<span style="display:inline-block; margin-left:4px;">Total: <strong>${h.totalBoxes}</strong></span></div><details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">View change history</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); max-height:180px; overflow:auto;">${historyActions || '<div style="font-size:12px; color:var(--text-muted);">No changes logged.</div>'}</div></details>${skuDrilldowns}</div>`;
       });
       html += `</div>`;
     }
@@ -1479,7 +1605,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (/^\d{3}$/.test(val)) {
       if (!skus.includes(val)) {
         skus.push(val);
-        trackingData[val] = { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+        trackingData[val] = createTrackingEntry();
         renderSkuTags();
         if (currentSection === 'tracking-section') {
           appendTrackerRow(val);
@@ -1530,6 +1656,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  midSkuInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (addSkuToList(midSkuInput.value.trim())) {
+        midSkuInput.value = '';
+      }
+    }
+  });
+
   btnMidAddSku.addEventListener('click', () => {
     if (addSkuToList(midSkuInput.value.trim())) {
       midSkuInput.value = '';
@@ -1551,15 +1686,162 @@ document.addEventListener('DOMContentLoaded', () => {
   function appendTrackerRow(sku) {
     const tr = document.createElement('tr');
     tr.id = `row-${sku}`;
-    const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+    const data = createTrackingEntry(trackingData[sku]);
+    trackingData[sku] = data;
     const perPallet = data.ti * data.hi;
     const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
-    const totalBoxes = (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
-    const totalPallets = data.fullPallets + data.partialPallets.length;
-    tr.innerHTML = `<td><strong class="sku-square" data-sku="${sku}" title="Hold to Edit SKU">${sku}</strong></td><td><input type="text" class="row-tihi tihi-input" data-sku="${sku}" value="${data.ti > 0 && data.hi > 0 ? data.ti + '/' + data.hi : ''}" placeholder="0/0" inputmode="numeric"><div class="tihi-box-calc" id="tihi-calc-${sku}">${perPallet > 0 ? '=' + perPallet + ' boxes' : ''}</div></td><td><button class="btn-pallet pallet-btn" data-sku="${sku}">+ Count</button></td><td><span class="read-only-val" id="count-pallet-${sku}">${totalPallets}</span></td><td><span class="read-only-val" id="total-boxes-${sku}">${totalBoxes}</span></td>`;
+    const totalBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
+    const totalPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
+    tr.innerHTML = `<td><strong class="sku-square" data-sku="${sku}" title="Hold to Edit SKU">${sku}</strong></td><td><input type="text" class="row-tihi tihi-input" data-sku="${sku}" value="${data.ti > 0 && data.hi > 0 ? data.ti + '/' + data.hi : ''}" placeholder="0/0" inputmode="numeric" ${data.ti > 0 && data.hi > 0 ? 'readonly' : ''}><div class="tihi-box-calc" id="tihi-calc-${sku}">${perPallet > 0 ? '=' + perPallet + ' boxes' : ''}</div></td><td><button class="btn-pallet pallet-btn" data-sku="${sku}">+ Count</button></td><td><span class="read-only-val pallets-made-val" data-sku="${sku}" title="Hold for SKU event history" id="count-pallet-${sku}">${totalPallets}</span></td><td><span class="read-only-val" id="total-boxes-${sku}">${totalBoxes}</span></td>`;
     trackerRows.appendChild(tr);
     attachSmartButtonEvents(tr.querySelector('.pallet-btn'), sku);
     attachSkuSquareLongPress(tr.querySelector('.sku-square'), sku);
+    attachTiHiLongPress(tr.querySelector('.tihi-input'), sku);
+    attachPalletHistoryLongPress(tr.querySelector('.pallets-made-val'), sku);
+  }
+
+  function attachTiHiLongPress(el, sku) {
+    if (!el) return;
+    let timer = null;
+    let openedByHold = false;
+    const hasSavedPattern = () => {
+      const data = trackingData[sku] || createTrackingEntry();
+      return data.ti > 0 && data.hi > 0;
+    };
+    const start = () => {
+      if (!hasSavedPattern()) return;
+      openedByHold = false;
+      timer = setTimeout(() => {
+        openedByHold = true;
+        if (navigator.vibrate) navigator.vibrate(50);
+        openTiHiChangeModal(sku);
+      }, 500);
+    };
+    const cancel = () => clearTimeout(timer);
+    el.addEventListener('touchstart', (e) => {
+      if (hasSavedPattern()) {
+        e.preventDefault();
+      }
+      start();
+    }, { passive: false });
+    el.addEventListener('touchend', (e) => {
+      cancel();
+      if (hasSavedPattern()) {
+        e.preventDefault();
+      }
+      if (!openedByHold && hasSavedPattern()) {
+        el.blur();
+      }
+    });
+    el.addEventListener('touchcancel', cancel);
+    el.addEventListener('mousedown', (e) => {
+      if (hasSavedPattern()) {
+        e.preventDefault();
+      }
+      start();
+    });
+    el.addEventListener('mouseup', (e) => {
+      cancel();
+      if (hasSavedPattern()) {
+        e.preventDefault();
+      }
+      if (!openedByHold && hasSavedPattern()) {
+        el.blur();
+      }
+    });
+    el.addEventListener('mouseleave', cancel);
+    el.addEventListener('click', (e) => {
+      if (hasSavedPattern()) {
+        e.preventDefault();
+        e.stopPropagation();
+        el.blur();
+      }
+    });
+  }
+
+  function attachPalletHistoryLongPress(el, sku) {
+    if (!el) return;
+    let timer = null;
+    const start = () => {
+      timer = setTimeout(() => {
+        if (navigator.vibrate) navigator.vibrate(50);
+        openPalletHistoryModal(sku);
+      }, 500);
+    };
+    const cancel = () => clearTimeout(timer);
+    el.addEventListener('touchstart', start, { passive: true });
+    el.addEventListener('touchend', cancel);
+    el.addEventListener('touchcancel', cancel);
+    el.addEventListener('mousedown', start);
+    el.addEventListener('mouseup', cancel);
+    el.addEventListener('mouseleave', cancel);
+  }
+
+  function openPalletHistoryModal(sku) {
+    const data = trackingData[sku] || createTrackingEntry();
+    const rows = (data.eventLog || [])
+      .map(evt => `<div style="padding:6px 0; border-bottom:1px dashed var(--border-color); font-size:12px;"><strong>[${evt.time}]</strong> ${evt.detail} <span style="color:var(--text-muted);">(Ti/Hi ${evt.tihi || '-'})</span></div>`)
+      .join('');
+    modalTitle.innerText = `SKU ${sku} History`;
+    modalBody.innerHTML = `<div style="text-align:left; max-height:280px; overflow:auto;">${rows || '<div style="font-size:12px; color:var(--text-muted);">No SKU events yet.</div>'}</div>`;
+    setModalActionButtons({ showConfirm: false, showSecondary: false });
+    modalCancelBtn.innerText = 'Close';
+    modalOverlay.classList.remove('hidden');
+  }
+
+  function openTiHiChangeModal(sku) {
+    const data = trackingData[sku] || createTrackingEntry();
+    const currentPattern = `${data.ti}/${data.hi}`;
+    modalTitle.innerText = 'Change Ti/Hi';
+    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="margin: 6px 0 10px 0; font-size:13px;">Current: <strong>${currentPattern}</strong></p><div style="text-align:left; margin-bottom:4px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">New Ti/Hi</label><input type="text" id="modal-change-tihi-input" maxlength="5" placeholder="0/0" inputmode="numeric" value="${currentPattern}" style="margin-bottom:10px;"></div><p style="margin:0; font-size:13px;">Apply to past pallets?</p>`;
+    modalConfirmBtn.className = 'success';
+    modalConfirmBtn.innerText = 'All pallets';
+    modalSecondaryBtn.className = 'secondary';
+    modalSecondaryBtn.innerText = 'From now';
+    setModalActionButtons({ showConfirm: true, showSecondary: true });
+    modalCancelBtn.innerText = 'Cancel';
+
+    const applyPattern = (applyToPast) => {
+      const rawVal = document.getElementById('modal-change-tihi-input').value.trim();
+      const match = rawVal.match(/^(\d{1,2})\/(\d{1,2})$/);
+      if (!match) {
+        alert('Use format Ti/Hi (example 8/4).');
+        return;
+      }
+      const oldTi = data.ti;
+      const oldHi = data.hi;
+      const newTi = parseInt(match[1], 10);
+      const newHi = parseInt(match[2], 10);
+      if (newTi === oldTi && newHi === oldHi) {
+        closeModal();
+        return;
+      }
+
+      if (!applyToPast) {
+        const oldPerPallet = oldTi * oldHi;
+        if (data.fullPallets > 0 && oldPerPallet > 0) {
+          data.carryBoxes += data.fullPallets * oldPerPallet;
+          data.carryPallets += data.fullPallets;
+          data.fullPallets = 0;
+        }
+      }
+
+      data.ti = newTi;
+      data.hi = newHi;
+      const modeText = applyToPast ? 'all pallets' : 'from now';
+      recordSkuEvent(sku, 'edit', `Pattern ${oldTi}/${oldHi} -> ${newTi}/${newHi} (${modeText})`, `${newTi}/${newHi}`);
+      logEntry(sku, `Changed Ti/Hi to ${newTi}/${newHi} (${modeText})`);
+      updateRowTotals(sku, false);
+      flashTiHiInput(sku);
+      closeModal();
+    };
+
+    modalConfirmBtn.onclick = () => applyPattern(true);
+    modalSecondaryBtn.onclick = () => applyPattern(false);
+    modalOverlay.classList.remove('hidden');
+    const modalTiHiInput = document.getElementById('modal-change-tihi-input');
+    attachTiHiInput(modalTiHiInput);
+    modalTiHiInput.focus();
   }
 
   function attachSkuSquareLongPress(el, sku) {
@@ -1584,7 +1866,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openEditSkuModal(sku) {
     modalTitle.innerText = "Edit / Delete SKU";
-    modalBody.innerHTML = `<div class="modal-sku-label">Current SKU</div><div class="modal-sku-number">${sku}</div><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Change SKU Number (3 digits)</label><input type="text" id="modal-edit-sku-input" maxlength="3" value="${sku}" pattern="\\d{3}" inputmode="numeric" style="margin-bottom:0;"></div><button id="modal-delete-sku-btn" class="danger" style="margin-top:10px; width:100%;">🗑️ Delete SKU from Tracker</button>`;
+    modalBody.innerHTML = `<div class="modal-sku-label">Current SKU</div><div class="modal-sku-number">${sku}</div><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Change SKU Number (3 digits)</label><input type="text" id="modal-edit-sku-input" maxlength="3" value="${sku}" pattern="\\d{3}" inputmode="numeric" style="margin-bottom:0;"></div><button id="modal-delete-sku-btn" class="danger" style="margin-top:10px; width:100%;">🗑️ Delete SKU</button>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Save Changes";
     setModalActionButtons({ showConfirm: true, showSecondary: false });
@@ -1619,10 +1901,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getGrandTotalBoxes() {
     return skus.reduce((sum, sku) => {
-      const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      const data = createTrackingEntry(trackingData[sku]);
       const perPallet = data.ti * data.hi;
       const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
-      return sum + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
+      return sum + data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
     }, 0);
   }
 
@@ -1630,7 +1912,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const totalBoxes = getGrandTotalBoxes();
     activityLogs.unshift({ time: timeStr, sku: sku, desc: actionDescription, totalBoxes });
-    topActivityTicker.innerHTML = `📋 [${timeStr}] SKU ${sku}: ${actionDescription} — ${totalBoxes} total`;
+    topActivityTicker.innerHTML = `📋 [${timeStr}] SKU ${sku}: ${actionDescription}`;
     renderLogModalList();
     saveState();
   }
@@ -1647,11 +1929,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandBoxes = 0;
     let grandPallets = 0;
     skus.forEach(sku => {
-      const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      const data = createTrackingEntry(trackingData[sku]);
       const perPallet = data.ti * data.hi;
       const partialBoxesSum = data.partialPallets.reduce((a, b) => a + b, 0);
-      grandBoxes += (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
-      grandPallets += data.fullPallets + data.partialPallets.length;
+      grandBoxes += data.carryBoxes + (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
+      grandPallets += data.carryPallets + data.fullPallets + data.partialPallets.length;
     });
     const now = new Date();
     const dateStr = now.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -1686,17 +1968,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandPallets = 0;
     let skuRowsHtml = '';
     skus.forEach(sku => {
-      const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      const data = createTrackingEntry(trackingData[sku]);
       const perPallet = data.ti * data.hi;
       const partialBoxesSum = data.partialPallets.reduce((a, b) => a + b, 0);
-      const totalSkuBoxes = (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
-      const totalSkuPallets = data.fullPallets + data.partialPallets.length;
+      const totalSkuBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
+      const totalSkuPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
       grandBoxes += totalSkuBoxes;
       grandPallets += totalSkuPallets;
       const patternStr = perPallet > 0 ? `${data.ti}/${data.hi}` : '-';
       const partialBoxesTotal = partialBoxesSum + data.partialBoxes;
       const partialsStr = `${data.partialPallets.length} / ${partialBoxesTotal}`;
-      skuRowsHtml += `<tr><td><strong>${sku}</strong></td><td>${patternStr}</td><td>${data.fullPallets}</td><td>${partialsStr}</td><td><strong>${totalSkuBoxes}</strong></td></tr>`;
+      skuRowsHtml += `<tr><td><strong>${sku}</strong></td><td>${patternStr}</td><td>${data.carryPallets + data.fullPallets}</td><td>${partialsStr}</td><td><strong>${totalSkuBoxes}</strong></td></tr>`;
     });
     
     if (skipNameDoorMode) {
@@ -1752,7 +2034,6 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.remove('hidden');
     setTimeout(() => {
       overlay.classList.add('hidden');
-      switchSection('trailer-section');
     }, 3000);
   }
 
@@ -1789,8 +2070,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openTapModal(sku) {
+    const activeInput = document.activeElement;
+    if (activeInput && activeInput.classList && activeInput.classList.contains('tihi-input')) {
+      const activeVal = activeInput.value.trim();
+      if (activeVal) {
+        activeInput.blur();
+      }
+    }
     const data = trackingData[sku];
     if (data.ti === 0 || data.hi === 0) {
+      const rowInput = trackingSection.querySelector(`.tihi-input[data-sku="${sku}"]`);
+      if (rowInput && rowInput.value.trim().length > 0) {
+        rowInput.focus();
+        return;
+      }
       alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
       return;
     }
@@ -1802,6 +2095,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalConfirmBtn.onclick = () => {
       captureUndoState(`Added one pallet to SKU ${sku}`);
       trackingData[sku].fullPallets += 1;
+      recordSkuEvent(sku, 'count', '+1 pallet', getTiHiString(trackingData[sku]));
       updateRowTotals(sku);
       logEntry(sku, "+1 pallet");
       closeModal();
@@ -1810,16 +2104,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openPartialModal(sku) {
+    const activeInput = document.activeElement;
+    if (activeInput && activeInput.classList && activeInput.classList.contains('tihi-input')) {
+      const activeVal = activeInput.value.trim();
+      if (activeVal) {
+        activeInput.blur();
+      }
+    }
     const data = trackingData[sku];
     const perPallet = data.ti * data.hi;
     if (perPallet === 0) {
+      const rowInput = trackingSection.querySelector(`.tihi-input[data-sku="${sku}"]`);
+      if (rowInput && rowInput.value.trim().length > 0) {
+        rowInput.focus();
+        return;
+      }
       alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
       return;
     }
     modalTitle.innerText = "Add to SKU";
-    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Standard Pallet: <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Unique Pallet (Ti/Hi)</label><input type="text" id="modal-unique-pallet" class="modal-tihi-input" placeholder="0/0" inputmode="numeric" style="margin-bottom:0;"><div class="tihi-box-calc" id="modal-tihi-calc" style="text-align:left; margin-top:4px; min-height:16px;"></div></div><div style="text-align:left; margin-bottom:5px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Single / Loose Boxes</label><input type="number" id="modal-single-boxes" placeholder="e.g., 5" inputmode="numeric" style="margin-bottom:0;"></div>`;
+    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Standard Pallet: <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Unique Pallet (Ti/Hi)</label><input type="text" id="modal-unique-pallet" class="modal-tihi-input" placeholder="0/0" inputmode="numeric" style="margin-bottom:0;"><div class="tihi-box-calc" id="modal-tihi-calc" style="text-align:left; margin-top:4px; min-height:16px;"></div></div><div style="text-align:left; margin-bottom:5px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">+Extra Boxes</label><input type="number" id="modal-single-boxes" placeholder="e.g., 5" inputmode="numeric" style="margin-bottom:0;"><div id="modal-add-total-preview" style="margin-top:6px; font-size:12px; color:var(--primary); font-weight:bold;">Total boxes to add: 0</div></div>`;
     modalConfirmBtn.className = "success";
-    modalConfirmBtn.innerText = "Confirm Count";
+    modalConfirmBtn.innerText = "Add to Count";
     setModalActionButtons({ showConfirm: true, showSecondary: false });
     modalConfirmBtn.onclick = () => {
       const actionParts = [];
@@ -1834,6 +2140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (uBoxes > 0) {
           captureUndoState(`Added unique pallet ${uTi}/${uHi} (${uBoxes} boxes) to SKU ${sku}`);
           trackingData[sku].partialPallets.push(uBoxes);
+          recordSkuEvent(sku, 'partial', `Partial pallet ${uTi}/${uHi} (${uBoxes} boxes)`, `${uTi}/${uHi}`);
           actionParts.push('+1 partial pallet');
           updated = true;
         }
@@ -1841,6 +2148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!isNaN(singleVal) && singleVal > 0) {
         if (!updated) captureUndoState(`Added ${singleVal} loose boxes to SKU ${sku}`);
         trackingData[sku].partialBoxes += singleVal;
+        recordSkuEvent(sku, 'count', `Loose boxes +${singleVal}`, getTiHiString(trackingData[sku]));
         actionParts.push(`+${singleVal} boxes`);
         updated = true;
       }
@@ -1855,10 +2163,38 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.remove('hidden');
     setTimeout(() => {
       const uInput = document.getElementById('modal-unique-pallet');
+      const singleInput = document.getElementById('modal-single-boxes');
+      const previewEl = document.getElementById('modal-add-total-preview');
+      const updateLiveAddTotal = () => {
+        const uniqueMatch = (uInput.value || '').match(/^(\d{1,2})\/(\d{1,2})$/);
+        const uniqueBoxes = uniqueMatch ? ((parseInt(uniqueMatch[1], 10) || 0) * (parseInt(uniqueMatch[2], 10) || 0)) : 0;
+        const singleBoxes = parseInt(singleInput.value, 10) || 0;
+        previewEl.innerText = `Total boxes to add: ${uniqueBoxes + singleBoxes}`;
+      };
       if (uInput) {
         attachTiHiInput(uInput);
+        uInput.addEventListener('input', updateLiveAddTotal);
+        uInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const currentMatch = uInput.value.match(/^(\d{1,2})\/(\d{1,2})$/);
+            if (currentMatch) {
+              e.preventDefault();
+              modalConfirmBtn.click();
+            }
+          }
+        });
         uInput.focus();
       }
+      if (singleInput) {
+        singleInput.addEventListener('input', updateLiveAddTotal);
+        singleInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            modalConfirmBtn.click();
+          }
+        });
+      }
+      updateLiveAddTotal();
     }, 200);
   }
 
@@ -1923,18 +2259,51 @@ document.addEventListener('DOMContentLoaded', () => {
     closeSendersCountModal();
   });
 
-  function updateRowTotals(sku) {
+  function updateRowTotals(sku, shouldFlashSku = true) {
     const data = trackingData[sku];
     const perPallet = data.ti * data.hi;
     const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
-    const totalBoxes = (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
-    const totalPallets = data.fullPallets + data.partialPallets.length;
+    const totalBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
+    const totalPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
     document.getElementById(`count-pallet-${sku}`).innerText = totalPallets;
     document.getElementById(`total-boxes-${sku}`).innerText = totalBoxes;
     const calcEl = document.getElementById(`tihi-calc-${sku}`);
     if (calcEl) calcEl.innerText = perPallet > 0 ? `=${perPallet} boxes` : '';
+    const tiHiInput = trackingSection.querySelector(`.tihi-input[data-sku="${sku}"]`);
+    if (tiHiInput) {
+      const hasPattern = data.ti > 0 && data.hi > 0;
+      tiHiInput.value = hasPattern ? `${data.ti}/${data.hi}` : '';
+      tiHiInput.readOnly = hasPattern;
+    }
+    if (shouldFlashSku) flashSkuSquare(sku);
     recalculateOverallTotals();
     saveState();
+  }
+
+  function flashSkuSquare(sku) {
+    const row = document.getElementById(`row-${sku}`);
+    if (!row) return;
+    const square = row.querySelector('.sku-square');
+    if (!square) return;
+    square.classList.remove('flash-green');
+    // Restart animation on rapid repeated updates.
+    void square.offsetWidth;
+    square.classList.add('flash-green');
+    setTimeout(() => {
+      square.classList.remove('flash-green');
+    }, 1000);
+  }
+
+  function flashTiHiInput(sku) {
+    const input = trackingSection.querySelector(`.tihi-input[data-sku="${sku}"]`);
+    if (!input) return;
+    input.classList.remove('flash-invert');
+    // Restart animation on repeated pattern updates.
+    void input.offsetWidth;
+    input.classList.add('flash-invert');
+    setTimeout(() => {
+      input.classList.remove('flash-invert');
+    }, 1000);
   }
 
   function formatTiHiValue(val) {
@@ -1978,11 +2347,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandBoxes = 0;
     let grandPallets = 0;
     skus.forEach(sku => {
-      const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      const data = createTrackingEntry(trackingData[sku]);
       const perPallet = data.ti * data.hi;
       const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
-      grandBoxes += (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
-      grandPallets += data.fullPallets + data.partialPallets.length;
+      grandBoxes += data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
+      grandPallets += data.carryPallets + data.fullPallets + data.partialPallets.length;
     });
 
     // Check manifestBoxes: if left blank/0, display count without /
@@ -2015,6 +2384,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 300);
     }
   });
+
+  trackingSection.addEventListener('pointerdown', (e) => {
+    const activeEl = document.activeElement;
+    if (!activeEl || !activeEl.classList || !activeEl.classList.contains('tihi-input')) return;
+    if (e.target === activeEl) return;
+    if (activeEl.value.trim().length > 0) {
+      activeEl.blur();
+    }
+  }, true);
 
   trackingSection.addEventListener('keydown', (e) => {
     if (e.target.classList.contains('tihi-input')) {
@@ -2092,47 +2470,16 @@ document.addEventListener('DOMContentLoaded', () => {
           if (currentTi === 0 && currentHi === 0) {
             trackingData[sku].ti = newTi;
             trackingData[sku].hi = newHi;
+            recordSkuEvent(sku, 'edit', `Pattern set to ${newTi}/${newHi}`, `${newTi}/${newHi}`);
             logEntry(sku, `Set Ti/Hi pattern to ${newTi}/${newHi}`);
-            updateRowTotals(sku);
+            updateRowTotals(sku, false);
+            flashTiHiInput(sku);
           } else {
-            modalTitle.innerText = "Confirm Ti/Hi Change";
-            modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="margin: 10px 0 0 0;">Are you sure you want to change the Ti/Hi pattern to <strong>${newTi}/${newHi}</strong>?</p>`;
-            modalConfirmBtn.className = "success";
-            modalConfirmBtn.innerText = "Yes, Change";
-            modalConfirmBtn.onclick = () => {
-              trackingData[sku].ti = newTi;
-              trackingData[sku].hi = newHi;
-              logEntry(sku, `Changed Ti/Hi pattern to ${newTi}/${newHi}`);
-              updateRowTotals(sku);
-              closeModal();
-            };
-            modalCancelBtn.onclick = () => {
-              el.value = currentStr;
-              const perPallet = currentTi * currentHi;
-              const calcEl = document.getElementById(`tihi-calc-${sku}`);
-              if (calcEl) calcEl.innerText = perPallet > 0 ? `=${perPallet} boxes` : '';
-              closeModal();
-            };
-            modalOverlay.classList.remove('hidden');
+            el.value = currentStr;
           }
         } else if (val === '') {
           if (currentTi > 0 || currentHi > 0) {
-            modalTitle.innerText = "Confirm Ti/Hi Removal";
-            modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="margin: 10px 0 0 0;">Are you sure you want to clear the Ti/Hi pattern?</p>`;
-            modalConfirmBtn.className = "danger";
-            modalConfirmBtn.innerText = "Yes, Clear";
-            modalConfirmBtn.onclick = () => {
-              trackingData[sku].ti = 0;
-              trackingData[sku].hi = 0;
-              logEntry(sku, `Cleared Ti/Hi pattern`);
-              updateRowTotals(sku);
-              closeModal();
-            };
-            modalCancelBtn.onclick = () => {
-              el.value = currentStr;
-              closeModal();
-            };
-            modalOverlay.classList.remove('hidden');
+            el.value = currentStr;
           }
         } else {
           el.value = currentStr;
