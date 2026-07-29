@@ -6,36 +6,36 @@
 <title>Lumper Pallet Tracker</title>
 <style>
 :root {
-  --bg-color: #0b0f19;
-  --card-bg: #111827;
-  --text-color: #f3f4f6;
-  --text-muted: #9ca3af;
-  --border-color: #1f2937;
-  --input-bg: #1f2937;
-  --input-border: #4b5563;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --table-header: #1e293b;
-  --table-border: #334155;
-  --badge-bg: #374151;
+  --bg-color: #09120f;
+  --card-bg: #111a14;
+  --text-color: #e6f0dd;
+  --text-muted: #8b9b7f;
+  --border-color: #314831;
+  --input-bg: rgba(220,235,213,0.08);
+  --input-border: rgba(175,192,161,0.16);
+  --primary: #8bb57f;
+  --primary-hover: #7a9f69;
+  --success: #7eb57d;
+  --danger: #be6058;
+  --table-header: #16231a;
+  --table-border: #2a3b2d;
+  --badge-bg: #1c2f20;
 }
 body.light-theme {
-  --bg-color: #f4f4f9;
-  --card-bg: #ffffff;
-  --text-color: #333333;
-  --text-muted: #6c757d;
-  --border-color: #dddddd;
-  --input-bg: #ffffff;
-  --input-border: #cccccc;
-  --primary: #0056b3;
-  --primary-hover: #004085;
-  --success: #28a745;
-  --danger: #dc3545;
-  --table-header: #343a40;
-  --table-border: #dee2e6;
-  --badge-bg: #e9ecef;
+  --bg-color: #e4e4df;
+  --card-bg: #ecece8;
+  --text-color: #2f362e;
+  --text-muted: #5f665d;
+  --border-color: #b7b9af;
+  --input-bg: rgba(98,103,92,0.08);
+  --input-border: rgba(98,103,92,0.18);
+  --primary: #5d725a;
+  --primary-hover: #4f644f;
+  --success: #62765e;
+  --danger: #8f544b;
+  --table-header: #e3e5dd;
+  --table-border: #c4c8bb;
+  --badge-bg: #e5e6df;
 }
 body {
   font-family: system-ui, -apple-system, sans-serif;
@@ -46,10 +46,76 @@ body {
   padding: 12px;
   transition: background-color 0.2s, color 0.2s;
 }
+.start-screen-title .app-title {
+  color: #33402f;
+  font-weight: 700;
+}
+.start-screen-title .app-subtitle {
+  color: #556557;
+}
+body:not(.light-theme) .start-screen-title .app-title {
+  color: #d7efd4;
+}
+body:not(.light-theme) .start-screen-title .app-subtitle {
+  color: #b1d1b4;
+}
 h2 {
   border-bottom: 2px solid var(--border-color);
   padding-bottom: 8px;
   margin-top: 0;
+}
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.section-heading-row h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.theme-toggle-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-size: 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.theme-toggle-icon:hover {
+  opacity: 0.85;
+}
+.start-screen-title {
+  margin-bottom: 22px;
+  text-align: left;
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(123,232,255,0.18);
+  border-radius: 22px;
+  background: rgba(123,232,255,0.06);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.app-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 300;
+  letter-spacing: 1px;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+.app-subtitle {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
 }
 h3 {
   margin-top: 15px;
@@ -81,6 +147,36 @@ h3 {
   letter-spacing: 1px;
   color: var(--primary);
   text-transform: uppercase;
+}
+.app-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  position: relative;
+}
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+.header-left {
+  flex: 1;
+}
+.header-center {
+  flex: 1;
+  justify-content: center;
+  gap: 10px;
+}
+.header-name {
+  color: var(--primary);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.header-door {
+  color: var(--text-color);
+  font-weight: bold;
 }
 .hamburger-btn {
   background: var(--card-bg);
@@ -137,49 +233,62 @@ label {
   margin-bottom: 4px;
   color: var(--text-muted);
 }
-input[type="text"], input[type="number"] {
-  padding: 10px;
+input, select, textarea {
+  padding: 12px 16px;
   font-size: 16px;
   border: 1px solid var(--input-border);
   background-color: var(--input-bg);
   color: var(--text-color);
-  border-radius: 6px;
-  width: calc(100% - 22px);
+  border-radius: 18px;
+  width: 100%;
   margin-bottom: 12px;
   box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(123,232,255,0.55);
+  background-color: rgba(255,255,255,0.12);
 }
 button {
   background-color: var(--primary);
-  color: white;
+  color: var(--bg-color);
   border: none;
   padding: 12px 15px;
   font-size: 16px;
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
   width: 100%;
   margin-bottom: 10px;
-  font-weight: bold;
+  font-weight: 700;
 }
 button:hover { background-color: var(--primary-hover); }
-button.success { background-color: var(--success); }
-button.secondary { background-color: #4b5563; }
+button.success { background-color: var(--success); color: #06161a; }
+button.secondary { background-color: rgba(255,255,255,0.08); color: var(--text-color); border: 1px solid rgba(255,255,255,0.15); }
 button.danger { background-color: var(--danger); }
 button:active { opacity: 0.8; }
+.btn-skip-option {
+  background-color: #ffffff;
+  color: #09121f;
+  border: 1px solid rgba(15,18,31,0.12);
+  width: auto;
+  padding: 12px 18px;
+}
 .text-link-btn {
   background: transparent;
-  color: var(--primary);
+  color: #ffffff;
   border: none;
   padding: 0;
   width: auto;
   margin: 0;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 400;
   text-decoration: underline;
   box-shadow: none;
 }
 .text-link-btn:hover {
   background: transparent;
-  color: var(--primary-hover);
+  color: #d7faff;
 }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -238,23 +347,25 @@ input[type=number] { -moz-appearance: textfield; }
   padding: 0 2px 8px;
   text-align: left;
 }
-.summary-card.full-width label {
-  display: inline;
-  font-size: 16px;
-  text-transform: none;
-  letter-spacing: normal;
-  color: var(--text-muted);
-  margin-right: 6px;
+.summary-card.full-width .summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.summary-card.full-width span {
-  display: inline;
+.summary-card.full-width .summary-header span {
+  display: inline-block;
   font-size: 18px;
   font-weight: bold;
+}
+#disp-trailer-name {
+  color: var(--text-color);
+}
+#disp-trailer-num {
   color: var(--text-color);
 }
 .summary-card:not(.full-width) label {
   font-size: 11px;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.5px;
   color: var(--text-muted);
   margin-bottom: 2px;
@@ -445,7 +556,7 @@ input[type=number] { -moz-appearance: textfield; }
 .so-stat-box .big-val {
   font-size: 24px;
   font-weight: bold;
-  color: var(--primary);
+  color: white;
   line-height: 1.1;
 }
 .so-stat-box .sub-val {
@@ -543,14 +654,18 @@ input[type=number] { -moz-appearance: textfield; }
 </head>
 <body>
 
-<!-- CORNER HEADER BAR (MENU & USER BADGE) -->
-<div class="app-header-bar">
-  <div id="corner-user-display" class="corner-user-badge hidden"></div>
-  <div style="position:relative; margin-left: auto;">
+<!-- CORNER HEADER BAR (MENU & USER HEADER) -->
+<div id="app-header-bar" class="app-header-bar hidden">
+  <div class="header-left">
+    <span id="disp-trailer-name" class="header-name">---</span>
+  </div>
+  <div class="header-center">
+    <span id="disp-trailer-num" class="header-door">DOOR ---</span>
+  </div>
+  <div class="header-right" style="position:relative; margin-left: auto;">
     <button id="hamburger-menu-btn" class="hamburger-btn">☰</button>
     <div id="dropdown-menu" class="dropdown-menu">
-      <button id="menu-item-log" class="dropdown-item">📋 View Activity Log</button>
-      <button id="menu-item-history" class="dropdown-item">📊 View Work History</button>
+      <button id="menu-item-log" class="dropdown-item">📋 View Timestamps</button>
       <button id="menu-item-senders-count" class="dropdown-item hidden">📦 Sender's Count</button>
       <button id="menu-item-theme" class="dropdown-item">🌓 Toggle Light/Dark Mode</button>
       <div id="menu-active-session-divider" class="dropdown-divider hidden"></div>
@@ -561,15 +676,25 @@ input[type=number] { -moz-appearance: textfield; }
 
 <!-- PHASE 1: TRAILER INFO SETUP -->
 <div id="trailer-section">
-  <h2>Start of Shift</h2>
+  <div class="start-screen-title">
+    <div class="app-title">LUMPER PALLET TRACKER</div>
+    <div class="app-subtitle">for counting SKUs</div>
+  </div>
+  <div class="section-heading-row">
+    <h2>Start of Shift</h2>
+    <button id="start-screen-theme-toggle" class="theme-toggle-icon" type="button" aria-label="Toggle light dark mode">🌓</button>
+  </div>
   <div id="error-message-1" class="error-msg"></div>
-  <label for="worker-name-input">Your Name</label>
+  <label for="worker-name-input">Name</label>
   <input type="text" id="worker-name-input" placeholder="">
   
-  <label for="door-num-input">Door Number</label>
+  <label for="door-num-input">Door</label>
   <input type="number" id="door-num-input" placeholder="" inputmode="numeric" pattern="\d{1,3}" maxlength="3">
   
-  <button id="btn-to-sku-setup" class="success hidden">Next</button>
+  <div style="display:flex; justify-content:flex-end; gap: 8px; margin-top:4px; max-width: 100%;">
+    <button id="btn-to-sku-setup" class="success hidden" style="width:auto; padding:10px 18px;">Next</button>
+    <button id="btn-skip-name-door" class="btn-skip-option" type="button">Skip</button>
+  </div>
 </div>
 
 <!-- PHASE 2: SKU SETUP -->
@@ -593,19 +718,15 @@ input[type=number] { -moz-appearance: textfield; }
   
   <!-- OVERALL TOTALS & MANIFEST COMPARISON BANNER -->
   <div class="summary-banner">
-    <div class="summary-card full-width">
-      <label>Door Number & Worker</label>
-      <span id="disp-trailer-num">---</span>
-    </div>
     <div class="summary-card">
-      <label>Total Boxes</label>
-      <span id="grand-total-boxes">0</span>
-      <small id="box-pct" class="hidden"></small>
-    </div>
-    <div class="summary-card">
-      <label>Total Pallets</label>
       <span id="grand-total-pallets">0</span>
+      <label>pallet count</label>
       <small id="pallet-pct" class="hidden"></small>
+    </div>
+    <div class="summary-card">
+      <span id="grand-total-boxes">0</span>
+      <label>box count</label>
+      <small id="box-pct" class="hidden"></small>
     </div>
   </div>
   
@@ -620,8 +741,8 @@ input[type=number] { -moz-appearance: textfield; }
         <tr>
           <th>SKU</th>
           <th>Ti/Hi</th>
-          <th>Action<br><small style="font-weight:normal;">(Hold for partial)</small></th>
-          <th>Total Pallets</th>
+          <th>Action<br><small style="font-weight:normal;">(Hold for more)</small></th>
+          <th>Pallets made</th>
           <th>Total Boxes</th>
         </tr>
       </thead>
@@ -633,19 +754,30 @@ input[type=number] { -moz-appearance: textfield; }
 <!-- PHASE 4: FINAL WORK SESSION SIGN OUT REPORT -->
 <div id="signout-section" class="hidden">
   <h2>Work Session Summary</h2>
-  <p style="font-size:13px; color:var(--text-muted);">Trailer count session finalized.</p>
+  <p id="so-worker-name" style="font-size:14px; font-weight:bold; margin:4px 0 12px 0; color: var(--text-color);">---</p>
   <div class="signout-card">
     <h3 style="margin-top:0; color:var(--primary); text-align:center;" id="so-trailer">Door #---</h3>
+    <div style="display:flex; justify-content:flex-end; width:100%; margin-bottom:10px;">
+      <button id="btn-view-log" class="text-link-btn" style="font-weight:400; font-size:13px; text-decoration:underline; padding:0;">📋 View log →</button>
+    </div>
     <div class="so-top-stats">
       <div class="so-stat-box">
-        <label>Total Boxes Counted</label>
+        <label>total boxes</label>
         <div class="big-val" id="so-boxes">0</div>
         <div class="sub-val hidden" id="so-box-pct"></div>
       </div>
       <div class="so-stat-box">
-        <label>Total Pallets Built</label>
+        <label>total pallets</label>
         <div class="big-val" id="so-pallets">0</div>
         <div class="sub-val hidden" id="so-pallet-pct"></div>
+      </div>
+      <div class="so-stat-box">
+        <label>avg time / pallet</label>
+        <div class="big-val" id="so-avg-pallet">N/A</div>
+      </div>
+      <div class="so-stat-box">
+        <label>duration of workload</label>
+        <div class="big-val" id="so-total-time">0.00h</div>
       </div>
     </div>
     <h3>SKU Breakdown</h3>
@@ -654,18 +786,29 @@ input[type=number] { -moz-appearance: textfield; }
         <tr>
           <th>SKU</th>
           <th>Pattern</th>
-          <th>Full</th>
-          <th>Partial</th>
+          <th>pallets</th>
+          <th>partial pallets / box count</th>
           <th>Total Boxes</th>
         </tr>
       </thead>
       <tbody id="so-sku-rows"></tbody>
     </table>
   </div>
-  <div style="display:flex; gap:10px; margin-bottom:15px;">
-    <button id="btn-summary-history" class="secondary" style="margin-bottom:0;">📊 View Work History</button>
+  <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
     <button id="btn-new-trailer" class="success" style="margin-bottom:0;">Finish Session</button>
+    <button id="btn-export-summary-pdf" class="text-link-btn" style="margin-bottom:0;">Export summary as PDF</button>
   </div>
+  <div id="summary-export-options" class="hidden" style="font-size:13px; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-bottom:15px;">
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;"><input type="checkbox" id="summary-export-include-timestamps"> Include timestamps</label>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <button id="btn-perform-summary-pdf-export" class="success" style="width:auto; padding:8px 12px;">Export PDF</button>
+      <button id="btn-cancel-summary-pdf-export" class="secondary" style="width:auto; padding:8px 12px;">Cancel</button>
+    </div>
+    <p style="margin:10px 0 0 0; color:var(--text-muted);">When exporting, the PDF will contain the summary details and optional timestamped activity log.</p>
+  </div>
+</div>
+<div id="end-session-overlay" class="hidden" style="position:fixed; inset:0; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; z-index:9999; font-size:20px; text-align:center; padding:20px;">
+  Count session finalized.
 </div>
 
 <!-- PHASE 5: WORK HISTORY SECTION -->
@@ -726,6 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let manifestBoxes = 0;
   let manifestPallets = 0;
   let startTime = null;
+  let skipNameDoorMode = false;
   let skus = [];
   let trackingData = {};
   let activityLogs = [];
@@ -733,11 +877,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // UI Elements
   const bodyEl = document.body;
-  const cornerUserDisplay = document.getElementById('corner-user-display');
   const hamburgerMenuBtn = document.getElementById('hamburger-menu-btn');
   const dropdownMenu = document.getElementById('dropdown-menu');
   const menuItemLog = document.getElementById('menu-item-log');
-  const menuItemHistory = document.getElementById('menu-item-history');
   const menuItemSendersCount = document.getElementById('menu-item-senders-count');
   const menuItemTheme = document.getElementById('menu-item-theme');
   const menuItemEndSession = document.getElementById('menu-item-endsession');
@@ -751,13 +893,20 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const workerNameInput = document.getElementById('worker-name-input');
   const doorNumInput = document.getElementById('door-num-input');
+  const workerNameLabel = document.querySelector('label[for="worker-name-input"]');
+  const doorNumLabel = document.querySelector('label[for="door-num-input"]');
   const btnToSkuSetup = document.getElementById('btn-to-sku-setup');
+  const btnSkipNameDoor = document.getElementById('btn-skip-name-door');
   const btnBackToTrailer = document.getElementById('btn-back-to-trailer');
   const btnBackFromHistory = document.getElementById('btn-back-from-history');
   
   const historyNameFilter = document.getElementById('history-name-filter');
   const historyListContainer = document.getElementById('history-list-container');
-  const btnSummaryHistory = document.getElementById('btn-summary-history');
+  const btnExportSummaryPdf = document.getElementById('btn-export-summary-pdf');
+  const summaryExportOptions = document.getElementById('summary-export-options');
+  const summaryExportIncludeTimestamps = document.getElementById('summary-export-include-timestamps');
+  const btnPerformSummaryPdfExport = document.getElementById('btn-perform-summary-pdf-export');
+  const btnCancelSummaryPdfExport = document.getElementById('btn-cancel-summary-pdf-export');
   
   const skuInput = document.getElementById('sku-input');
   const btnAddSku = document.getElementById('btn-add-sku');
@@ -768,11 +917,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnMidAddSku = document.getElementById('btn-mid-add-sku');
   
   const dispTrailerNum = document.getElementById('disp-trailer-num');
+  const dispTrailerName = document.getElementById('disp-trailer-name');
+  const appHeaderBar = document.getElementById('app-header-bar');
   const grandTotalBoxes = document.getElementById('grand-total-boxes');
   const grandTotalPallets = document.getElementById('grand-total-pallets');
   const boxPct = document.getElementById('box-pct');
   const palletPct = document.getElementById('pallet-pct');
   const btnNewTrailer = document.getElementById('btn-new-trailer');
+  const btnViewLog = document.getElementById('btn-view-log');
   const topActivityTicker = document.getElementById('top-activity-ticker');
   
   const logModalOverlay = document.getElementById('log-modal-overlay');
@@ -797,12 +949,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedTheme === 'light') {
     bodyEl.classList.add('light-theme');
   }
-  menuItemTheme.addEventListener('click', () => {
+  const startScreenThemeToggle = document.getElementById('start-screen-theme-toggle');
+  const toggleTheme = () => {
     bodyEl.classList.toggle('light-theme');
     const isLight = bodyEl.classList.contains('light-theme');
     localStorage.setItem('lpt_theme', isLight ? 'light' : 'dark');
     dropdownMenu.classList.remove('show');
-  });
+  };
+  menuItemTheme.addEventListener('click', toggleTheme);
+  if (startScreenThemeToggle) {
+    startScreenThemeToggle.addEventListener('click', toggleTheme);
+  }
 
   // Hamburger Menu Toggle
   hamburgerMenuBtn.addEventListener('click', (e) => {
@@ -818,14 +975,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function updateMenuVisibility() {
-    if (workerName && (currentSection === 'tracking-section' || currentSection === 'signout-section' || currentSection === 'history-section')) {
-      cornerUserDisplay.innerText = workerName.toUpperCase();
-      cornerUserDisplay.classList.remove('hidden');
-    } else {
-      cornerUserDisplay.innerText = '';
-      cornerUserDisplay.classList.add('hidden');
-    }
-
     if (currentSection === 'tracking-section') {
       menuItemSendersCount.classList.remove('hidden');
     } else {
@@ -841,11 +990,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  menuItemHistory.addEventListener('click', () => {
-    dropdownMenu.classList.remove('show');
-    renderWorkHistory();
-    switchSection('history-section');
-  });
+  function updateSkipButtonVisibility() {
+    if (currentSection === 'trailer-section') {
+      btnSkipNameDoor.classList.remove('hidden');
+    } else {
+      btnSkipNameDoor.classList.add('hidden');
+    }
+  }
 
   menuItemSendersCount.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
@@ -859,6 +1010,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLogModalList();
     logModalOverlay.classList.remove('hidden');
   });
+
+  if (btnViewLog) {
+    btnViewLog.addEventListener('click', () => {
+      renderLogModalList();
+      logModalOverlay.classList.remove('hidden');
+    });
+  }
 
   btnCloseLogModal.addEventListener('click', () => {
     logModalOverlay.classList.add('hidden');
@@ -875,7 +1033,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Log Modal Exports
   btnModalExportTxt.addEventListener('click', () => {
-    let content = `LUMPER PALLET TRACKER - ACTIVITY LOG\nDoor #${doorNum} | Worker: ${workerName.toUpperCase()}\n\n`;
+    let headerLine = `LUMPER PALLET TRACKER - ACTIVITY LOG\n`;
+    if (doorNum && doorNum.trim().length > 0) {
+      headerLine += `Door #${doorNum} | Worker: ${workerName.toUpperCase()}\n\n`;
+    } else {
+      headerLine += `Worker: ${workerName.toUpperCase()}\n\n`;
+    }
+    let content = headerLine;
     activityLogs.forEach(l => {
       content += `[${l.time}] SKU ${l.sku}: ${l.desc}\n`;
     });
@@ -883,7 +1047,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Door_${doorNum}_Log.txt`;
+    const fileNameSuffix = doorNum && doorNum.trim().length > 0 ? `Door_${doorNum}` : `Worker_${workerName.toUpperCase() || 'LOG'}`;
+    a.download = `${fileNameSuffix}_Log.txt`;
     a.click();
     URL.revokeObjectURL(url);
   });
@@ -894,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // PERSISTENCE & LOCALSTORAGE RESTORATION
   function saveState() {
-    const state = { workerName, doorNum, manifestBoxes, manifestPallets, startTime, skus, trackingData, activityLogs, currentSection };
+    const state = { workerName, doorNum, manifestBoxes, manifestPallets, startTime, skus, trackingData, activityLogs, currentSection, skipNameDoorMode };
     try {
       localStorage.setItem('lpt_saved_session', JSON.stringify(state));
     } catch (e) {}
@@ -913,8 +1078,9 @@ document.addEventListener('DOMContentLoaded', () => {
         skus = state.skus || [];
         trackingData = state.trackingData || {};
         activityLogs = state.activityLogs || [];
+        skipNameDoorMode = state.skipNameDoorMode || false;
         if (state.currentSection && state.currentSection !== 'trailer-section' && state.currentSection !== 'setup-section') {
-          dispTrailerNum.innerText = `Door #${doorNum}`;
+          updateTrackerHeader();
           switchSection(state.currentSection);
           if (state.currentSection === 'tracking-section') renderTable();
           else if (state.currentSection === 'signout-section') renderSignoutSummary();
@@ -940,9 +1106,32 @@ document.addEventListener('DOMContentLoaded', () => {
   function switchSection(sectionId) {
     currentSection = sectionId;
     hideAllSections();
+    if (sectionId === 'tracking-section') {
+      appHeaderBar.classList.remove('hidden');
+      if (skipNameDoorMode) {
+        dispTrailerName.classList.add('hidden');
+        dispTrailerNum.classList.add('hidden');
+      } else {
+        dispTrailerName.classList.remove('hidden');
+        dispTrailerNum.classList.remove('hidden');
+      }
+    } else {
+      appHeaderBar.classList.add('hidden');
+    }
     document.getElementById(sectionId).classList.remove('hidden');
     updateMenuVisibility();
+    updateSkipButtonVisibility();
     saveState();
+  }
+
+  function updateTrackerHeader() {
+    dispTrailerName.innerText = workerName ? workerName.toUpperCase() : 'WORKER';
+    if (doorNum && doorNum.trim().length > 0) {
+      dispTrailerNum.innerText = `DOOR ${doorNum}`;
+      dispTrailerNum.classList.remove('hidden');
+    } else {
+      dispTrailerNum.classList.add('hidden');
+    }
   }
 
   function showError(elId, msg) {
@@ -959,6 +1148,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   workerNameInput.addEventListener('input', toggleNextButtonVisibility);
+  workerNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      workerNameInput.blur();
+      doorNumInput.focus();
+    }
+  });
+  doorNumInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!btnToSkuSetup.classList.contains('hidden')) {
+        btnToSkuSetup.click();
+      } else {
+        doorNumInput.blur();
+      }
+    }
+  });
   doorNumInput.addEventListener('input', () => {
     let val = doorNumInput.value.replace(/\D/g, '');
     if (val.length > 3) val = val.slice(0, 3);
@@ -968,6 +1174,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleNextButtonVisibility();
 
+  function findRecentHistoryByDoor(doorValue) {
+    if (!doorValue) return null;
+    const history = getStoredHistory();
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    return history.find(h => {
+      if (String(h.doorNum) !== String(doorValue)) return false;
+      const recTime = h.timestamp || 0;
+      return (now - recTime) <= twentyFourHours;
+    });
+  }
+
+  function initializeSessionFromStartScreen() {
+    const wVal = workerNameInput.value.trim();
+    const dVal = doorNumInput.value.trim();
+    const matchedRecord = findRecentHistoryByDoor(dVal);
+    if (matchedRecord) {
+      const shouldContinue = window.confirm(`A count for Door #${dVal} was found from the last 24 hours. Continue that door or start a new session?`);
+      if (shouldContinue) {
+        restorePreviousDoorSession(matchedRecord);
+        return;
+      }
+      startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord);
+      return;
+    }
+    startNewSession(wVal, dVal);
+  }
+
   function startNewSession(workerNameValue, doorValue) {
     workerName = workerNameValue.toUpperCase();
     doorNum = doorValue;
@@ -976,6 +1210,23 @@ document.addEventListener('DOMContentLoaded', () => {
     startTime = Date.now();
     skus = [];
     trackingData = {};
+    activityLogs = [];
+    updateMenuVisibility();
+    renderSkuTags();
+    switchSection('setup-section');
+  }
+
+  function startNewSessionWithPreviousSkus(workerNameValue, doorValue, record) {
+    workerName = workerNameValue.toUpperCase();
+    doorNum = doorValue;
+    manifestBoxes = 0;
+    manifestPallets = 0;
+    startTime = Date.now();
+    skus = record.skus ? [...record.skus] : [];
+    trackingData = {};
+    skus.forEach(sku => {
+      trackingData[sku] = { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+    });
     activityLogs = [];
     updateMenuVisibility();
     renderSkuTags();
@@ -993,16 +1244,25 @@ document.addEventListener('DOMContentLoaded', () => {
     activityLogs = Array.isArray(record.activityLogs) && record.activityLogs.length > 0
       ? JSON.parse(JSON.stringify(record.activityLogs))
       : [{ time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), sku: '---', desc: `Continued Door #${doorNum}` }];
-    dispTrailerNum.innerText = `Door #${doorNum}`;
+    updateTrackerHeader();
     switchSection('tracking-section');
     renderTable();
     updateMenuVisibility();
   }
 
   // WORK HISTORY
-  btnSummaryHistory.addEventListener('click', () => {
-    renderWorkHistory();
-    switchSection('history-section');
+  btnExportSummaryPdf.addEventListener('click', () => {
+    summaryExportOptions.classList.toggle('hidden');
+  });
+
+  btnPerformSummaryPdfExport.addEventListener('click', () => {
+    const includeTimestamps = summaryExportIncludeTimestamps.checked;
+    generateSummaryPdf(includeTimestamps);
+    summaryExportOptions.classList.add('hidden');
+  });
+
+  btnCancelSummaryPdfExport.addEventListener('click', () => {
+    summaryExportOptions.classList.add('hidden');
   });
 
   btnBackFromHistory.addEventListener('click', () => {
@@ -1093,32 +1353,27 @@ document.addEventListener('DOMContentLoaded', () => {
       showError('error-message-1', 'Please enter a valid Door Number');
       return;
     }
-
-    const history = getStoredHistory();
-    const now = Date.now();
-    const twentyFourHours = 24 * 60 * 60 * 1000;
-    const matchedRecord = history.find(h => {
-      if (String(h.doorNum) !== String(dVal)) return false;
-      const recTime = h.timestamp || 0;
-      return (now - recTime) <= twentyFourHours;
-    });
-
-    if (matchedRecord) {
-      const shouldContinue = window.confirm(`A count for Door #${dVal} was found from the last 24 hours. Continue that door or start a new session?`);
-      if (shouldContinue) {
-        restorePreviousDoorSession(matchedRecord);
-      } else {
-        startNewSession(wVal, dVal);
-      }
-    } else {
-      startNewSession(wVal, dVal);
-    }
+    initializeSessionFromStartScreen();
   });
 
   btnBackToTrailer.addEventListener('click', () => {
     workerNameInput.value = workerName;
     doorNumInput.value = doorNum;
     switchSection('trailer-section');
+  });
+
+  btnSkipNameDoor.addEventListener('click', () => {
+    skipNameDoorMode = true;
+    appHeaderBar.classList.add('hidden');
+    saveState();
+    const dVal = doorNumInput.value.trim();
+    const matchedRecord = findRecentHistoryByDoor(dVal);
+    if (matchedRecord) {
+      startNewSessionWithPreviousSkus(workerNameInput.value.trim(), dVal, matchedRecord);
+    } else {
+      renderSkuTags();
+      switchSection('setup-section');
+    }
   });
 
   // 2. SKU SETUP STEP
@@ -1183,7 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnFinish.addEventListener('click', () => {
-    dispTrailerNum.innerText = `Door #${doorNum}`;
+    updateTrackerHeader();
     switchSection('tracking-section');
     renderTable();
   });
@@ -1202,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
     const totalBoxes = (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
     const totalPallets = data.fullPallets + data.partialPallets.length;
-    tr.innerHTML = `<td><strong class="sku-square" data-sku="${sku}" title="Hold to Edit SKU">${sku}</strong></td><td><input type="text" class="row-tihi tihi-input" data-sku="${sku}" value="${data.ti > 0 && data.hi > 0 ? data.ti + '/' + data.hi : ''}" placeholder="0/0" inputmode="numeric"><div class="tihi-box-calc" id="tihi-calc-${sku}">${perPallet > 0 ? perPallet + ' boxes' : ''}</div></td><td><button class="btn-pallet pallet-btn" data-sku="${sku}">+ Count</button></td><td><span class="read-only-val" id="count-pallet-${sku}">${totalPallets}</span></td><td><span class="read-only-val" id="total-boxes-${sku}">${totalBoxes}</span></td>`;
+    tr.innerHTML = `<td><strong class="sku-square" data-sku="${sku}" title="Hold to Edit SKU">${sku}</strong></td><td><input type="text" class="row-tihi tihi-input" data-sku="${sku}" value="${data.ti > 0 && data.hi > 0 ? data.ti + '/' + data.hi : ''}" placeholder="0/0" inputmode="numeric"><div class="tihi-box-calc" id="tihi-calc-${sku}">${perPallet > 0 ? '=' + perPallet + ' boxes' : ''}</div></td><td><button class="btn-pallet pallet-btn" data-sku="${sku}">+ Count</button></td><td><span class="read-only-val" id="count-pallet-${sku}">${totalPallets}</span></td><td><span class="read-only-val" id="total-boxes-${sku}">${totalBoxes}</span></td>`;
     trackerRows.appendChild(tr);
     attachSmartButtonEvents(tr.querySelector('.pallet-btn'), sku);
     attachSkuSquareLongPress(tr.querySelector('.sku-square'), sku);
@@ -1261,16 +1516,28 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.remove('hidden');
   }
 
+  function getGrandTotalBoxes() {
+    return skus.reduce((sum, sku) => {
+      const data = trackingData[sku] || { ti: 0, hi: 0, fullPallets: 0, partialPallets: [], partialBoxes: 0 };
+      const perPallet = data.ti * data.hi;
+      const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
+      return sum + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
+    }, 0);
+  }
+
   function logEntry(sku, actionDescription) {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    activityLogs.unshift({ time: timeStr, sku: sku, desc: actionDescription });
-    topActivityTicker.innerHTML = `📋 [${timeStr}] <strong>SKU ${sku}:</strong> ${actionDescription}`;
+    const totalBoxes = getGrandTotalBoxes();
+    activityLogs.unshift({ time: timeStr, sku: sku, desc: actionDescription, totalBoxes });
+    topActivityTicker.innerHTML = `📋 [${timeStr}] SKU ${sku}: ${actionDescription} — ${totalBoxes} total`;
     renderLogModalList();
     saveState();
   }
 
   function renderLogModalList() {
-    const content = activityLogs.length === 0 ? `<div style="color:var(--text-muted); text-align:center; padding:10px;">No entries recorded yet</div>` : activityLogs.map(log => `<div style="padding: 6px 0; border-bottom: 1px dashed var(--border-color); color: var(--text-muted);"><span style="font-weight:bold; color:var(--primary); margin-right:6px;">[${log.time}]</span><strong>SKU ${log.sku}:</strong> ${log.desc}</div>`).join('');
+    const content = activityLogs.length === 0
+      ? `<div style="color:var(--text-muted); text-align:center; padding:10px;">No entries recorded yet</div>`
+      : activityLogs.map(log => `<div class="log-row" style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed var(--border-color); color: var(--text-muted); gap:10px;"><span style="font-weight:bold; color:var(--primary); min-width:100px;">[${log.time}]</span><span style="flex:1; min-width:120px;">SKU ${log.sku}</span><span style="flex:1; min-width:140px;">${log.desc}</span><span style="min-width:110px; text-align:right;">${log.totalBoxes} total</span></div>`).join('');
     modalActivityLogList.innerHTML = content;
   }
 
@@ -1326,11 +1593,23 @@ document.addEventListener('DOMContentLoaded', () => {
       grandBoxes += totalSkuBoxes;
       grandPallets += totalSkuPallets;
       const patternStr = perPallet > 0 ? `${data.ti}/${data.hi}` : '-';
-      const partialsStr = data.partialPallets.length > 0 ? `${data.partialPallets.length} (parts)` : '0';
+      const partialBoxesTotal = partialBoxesSum + data.partialBoxes;
+      const partialsStr = `${data.partialPallets.length} / ${partialBoxesTotal}`;
       skuRowsHtml += `<tr><td><strong>${sku}</strong></td><td>${patternStr}</td><td>${data.fullPallets}</td><td>${partialsStr}</td><td><strong>${totalSkuBoxes}</strong></td></tr>`;
     });
     
-    document.getElementById('so-trailer').innerText = `Door #${doorNum}`;
+    if (skipNameDoorMode) {
+      document.getElementById('so-trailer').classList.add('hidden');
+      document.getElementById('so-worker-name').classList.add('hidden');
+    } else {
+      if (doorNum && doorNum.trim().length > 0) {
+        document.getElementById('so-trailer').classList.remove('hidden');
+        document.getElementById('so-trailer').innerText = `Door #${doorNum}`;
+      } else {
+        document.getElementById('so-trailer').classList.add('hidden');
+      }
+      document.getElementById('so-worker-name').classList.remove('hidden');
+    }
 
     // Check manifestBoxes (if left blank/0, show without /)
     const boxPctEl = document.getElementById('so-box-pct');
@@ -1355,8 +1634,25 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('so-pallets').innerText = grandPallets;
       palletPctEl.classList.add('hidden');
     }
+    const avgMinutes = grandPallets > 0 ? Math.max(1, Math.floor((Date.now() - startTime) / 60000 / grandPallets)) : null;
+    document.getElementById('so-avg-pallet').innerText = avgMinutes ? `${avgMinutes} min` : 'N/A';
+    const totalTimeMins = startTime ? Math.floor((Date.now() - startTime) / 60000) : 0;
+    const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
+    document.getElementById('so-total-time').innerText = `${totalTimeDecimal}h`;
+    document.getElementById('so-worker-name').innerText = workerName ? workerName.toUpperCase() : 'WORKER';
 
     document.getElementById('so-sku-rows').innerHTML = skuRowsHtml;
+    showEndSessionOverlay();
+  }
+
+  function showEndSessionOverlay() {
+    const overlay = document.getElementById('end-session-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      switchSection('trailer-section');
+    }, 3000);
   }
 
   btnNewTrailer.addEventListener('click', () => {
@@ -1399,13 +1695,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const addedBoxes = data.ti * data.hi;
     modalTitle.innerText = "+1 Completed Pallet";
-    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="margin: 10px 0 0 0;">Add <strong>1 Full Pallet</strong> (${addedBoxes} boxes)?</p>`;
+    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Confirm";
     modalConfirmBtn.onclick = () => {
       trackingData[sku].fullPallets += 1;
-      logEntry(sku, `Added +1 Full Pallet (${addedBoxes} boxes)`);
       updateRowTotals(sku);
+      logEntry(sku, "+1 pallet");
       closeModal();
     };
     modalOverlay.classList.remove('hidden');
@@ -1418,11 +1714,12 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Please enter a valid Ti/Hi for SKU " + sku + " first!");
       return;
     }
-    modalTitle.innerText = "Add Partial Count";
-    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Standard Pallet: <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Unique Pallet (Ti/Hi)</label><input type="text" id="modal-unique-pallet" class="modal-tihi-input" placeholder="0/0" pattern="\\d{1,2}/\\d{1,2}" inputmode="numeric" style="margin-bottom:0;"><div class="tihi-box-calc" id="modal-tihi-calc" style="text-align:left; margin-top:4px; min-height:16px;"></div></div><div style="text-align:left; margin-bottom:5px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Single / Loose Boxes</label><input type="number" id="modal-single-boxes" placeholder="e.g., 5" inputmode="numeric" style="margin-bottom:0;"></div>`;
+    modalTitle.innerText = "Add to SKU";
+    modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">Standard Pallet: <strong>${perPallet}</strong> boxes (${data.ti}/${data.hi})</p><div style="text-align:left; margin-bottom:12px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Unique Pallet (Ti/Hi)</label><input type="text" id="modal-unique-pallet" class="modal-tihi-input" placeholder="0/0" inputmode="numeric" style="margin-bottom:0;"><div class="tihi-box-calc" id="modal-tihi-calc" style="text-align:left; margin-top:4px; min-height:16px;"></div></div><div style="text-align:left; margin-bottom:5px;"><label style="font-size:13px; font-weight:bold; margin-bottom:4px;">Single / Loose Boxes</label><input type="number" id="modal-single-boxes" placeholder="e.g., 5" inputmode="numeric" style="margin-bottom:0;"></div>`;
     modalConfirmBtn.className = "success";
     modalConfirmBtn.innerText = "Confirm Count";
     modalConfirmBtn.onclick = () => {
+      const actionParts = [];
       const uniqueValStr = document.getElementById('modal-unique-pallet').value;
       const singleVal = parseInt(document.getElementById('modal-single-boxes').value, 10);
       let updated = false;
@@ -1433,17 +1730,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const uBoxes = uTi * uHi;
         if (uBoxes > 0) {
           trackingData[sku].partialPallets.push(uBoxes);
-          logEntry(sku, `Added Partial Pallet (${uTi}/${uHi} = ${uBoxes} boxes)`);
+          actionParts.push('+1 partial pallet');
           updated = true;
         }
       }
       if (!isNaN(singleVal) && singleVal > 0) {
         trackingData[sku].partialBoxes += singleVal;
-        logEntry(sku, `Added +${singleVal} Loose Boxes`);
+        actionParts.push(`+${singleVal} boxes`);
         updated = true;
       }
       if (updated) {
         updateRowTotals(sku);
+        logEntry(sku, actionParts.join(' '));
         closeModal();
       } else {
         alert("Please enter a valid Ti/Hi pattern (e.g., 8/4) or single boxes.");
@@ -1452,7 +1750,10 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.remove('hidden');
     setTimeout(() => {
       const uInput = document.getElementById('modal-unique-pallet');
-      if (uInput) uInput.focus();
+      if (uInput) {
+        attachTiHiInput(uInput);
+        uInput.focus();
+      }
     }, 200);
   }
 
@@ -1485,9 +1786,46 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(`count-pallet-${sku}`).innerText = totalPallets;
     document.getElementById(`total-boxes-${sku}`).innerText = totalBoxes;
     const calcEl = document.getElementById(`tihi-calc-${sku}`);
-    if (calcEl) calcEl.innerText = perPallet > 0 ? `${perPallet} / pallet` : '';
+    if (calcEl) calcEl.innerText = perPallet > 0 ? `=${perPallet} boxes` : '';
     recalculateOverallTotals();
     saveState();
+  }
+
+  function formatTiHiValue(val) {
+    val = val.replace(/[^0-9/]/g, '');
+    let parts = val.split('/');
+    let ti = parts[0] || '';
+    let hi = parts.length > 1 ? parts.slice(1).join('') : null;
+    if (hi === null && ti.length > 2) {
+      hi = ti.slice(2);
+      ti = ti.slice(0, 2);
+    } else {
+      if (ti.length > 2) ti = ti.slice(0, 2);
+      if (hi !== null && hi.length > 2) hi = hi.slice(0, 2);
+    }
+    return hi !== null ? `${ti}/${hi}` : ti;
+  }
+
+  function attachTiHiInput(el) {
+    el.addEventListener('input', () => {
+      const formatted = formatTiHiValue(el.value);
+      el.value = formatted;
+    });
+    el.addEventListener('keydown', (e) => {
+      const val = el.value;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!val.includes('/') && val.length > 0) {
+          el.value = formatTiHiValue(val + '/');
+        }
+      }
+      if (e.key === '/') {
+        e.preventDefault();
+        if (!val.includes('/') && val.length > 0) {
+          el.value = formatTiHiValue(val + '/');
+        }
+      }
+    });
   }
 
   function recalculateOverallTotals() {
@@ -1585,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tNum = parseInt(ti, 10) || 0;
       const hNum = parseInt(hi, 10) || 0;
       if (tNum > 0 && hNum > 0) {
-        if (calcEl) calcEl.innerText = `${tNum * hNum} / pallet`;
+        if (calcEl) calcEl.innerText = `=${tNum * hNum} boxes`;
       } else if (calcEl) {
         calcEl.innerText = '';
       }
@@ -1626,7 +1964,7 @@ document.addEventListener('DOMContentLoaded', () => {
               el.value = currentStr;
               const perPallet = currentTi * currentHi;
               const calcEl = document.getElementById(`tihi-calc-${sku}`);
-              if (calcEl) calcEl.innerText = perPallet > 0 ? `${perPallet} / pallet` : '';
+              if (calcEl) calcEl.innerText = perPallet > 0 ? `=${perPallet} boxes` : '';
               closeModal();
             };
             modalOverlay.classList.remove('hidden');
