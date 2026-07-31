@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Lumper Pallet Tracker</title>
 <style>
 :root {
@@ -22,20 +25,20 @@
   --badge-bg: #1c2f20;
 }
 body.light-theme {
-  --bg-color: #e4e4df;
-  --card-bg: #ecece8;
-  --text-color: #2f362e;
-  --text-muted: #5f665d;
-  --border-color: #b7b9af;
-  --input-bg: rgba(98,103,92,0.08);
-  --input-border: rgba(98,103,92,0.18);
-  --primary: #5d725a;
-  --primary-hover: #4f644f;
-  --success: #62765e;
-  --danger: #8f544b;
-  --table-header: #e3e5dd;
-  --table-border: #c4c8bb;
-  --badge-bg: #e5e6df;
+  --bg-color: #f0f0eb;
+  --card-bg: #ffffff;
+  --text-color: #1a1f19;
+  --text-muted: #4a5248;
+  --border-color: #8a8f82;
+  --input-bg: #ffffff;
+  --input-border: #7a7f74;
+  --primary: #3a5c35;
+  --primary-hover: #2d4a28;
+  --success: #2e5e2b;
+  --danger: #7a2e26;
+  --table-header: #d8dcd0;
+  --table-border: #9a9f94;
+  --badge-bg: #dce0d6;
 }
 html, body {
   height: 100%;
@@ -53,11 +56,11 @@ body {
 }
 @media (max-width: 768px) {
   body.light-theme {
-    background-color: #c7c9c3;
+    background-color: #e8e8e2;
   }
 }
 .start-screen-title .app-title {
-  color: #33402f;
+  color: #1a2818;
   font-weight: 700;
 }
 .start-screen-title .app-subtitle {
@@ -647,6 +650,16 @@ body.light-theme #pallet-pct {
   color: var(--text-muted);
   margin-bottom: 4px;
 }
+.summary-worker-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 4px 0 12px 0;
+  color: var(--text-color);
+}
+body.light-theme .summary-worker-name,
+body.light-theme .so-stat-box .big-val {
+  color: var(--primary);
+}
 .so-stat-box .big-val {
   font-size: 24px;
   font-weight: bold;
@@ -781,11 +794,8 @@ body.light-theme #pallet-pct {
     <button id="start-screen-theme-toggle" class="theme-toggle-icon" type="button" aria-label="Toggle light dark mode">🌓</button>
   </div>
   <div id="error-message-1" class="error-msg"></div>
-  <label for="worker-name-input">Name</label>
-  <input type="text" id="worker-name-input" placeholder="">
-  
-  <label for="door-num-input">Door</label>
-  <input type="number" id="door-num-input" placeholder="" inputmode="numeric" pattern="\d{1,3}" maxlength="3">
+  <input type="text" id="worker-name-input" placeholder="Name" aria-label="Name">
+  <input type="number" id="door-num-input" placeholder="Door" aria-label="Door" inputmode="numeric" pattern="\d{1,3}" maxlength="3">
   
   <div style="display:flex; justify-content:space-between; gap: 8px; margin-top:4px; max-width: 100%; flex-wrap: wrap;">
     <button id="btn-view-history" class="secondary" type="button" style="width:auto; padding:12px 18px;">Work History</button>
@@ -795,15 +805,18 @@ body.light-theme #pallet-pct {
 
 <!-- PHASE 2: SKU SETUP -->
 <div id="setup-section" class="hidden">
-  <h2>Trailer SKU Setup</h2>
+  <div class="section-heading-row">
+    <h2>SKU Setup</h2>
+    <button class="theme-toggle-icon" onclick="document.body.classList.toggle('light-theme'); localStorage.setItem('lpt_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');" type="button" aria-label="Toggle light dark mode">🌓</button>
+  </div>
   <div id="error-message-2" class="error-msg"></div>
-  <input type="text" id="sku-input" maxlength="3" placeholder="e.g., 402" pattern="\d{3}" inputmode="numeric">
+  <input type="text" id="sku-input" maxlength="3" placeholder="Add SKU" pattern="\d{3}" inputmode="numeric">
   <button id="btn-add-sku">Add SKU to List</button>
   <div class="sku-list">
-    <strong>Current SKUs:</strong>
     <div id="sku-tags"></div>
   </div>
-  <button id="btn-finish-setup" class="success">Start Count</button>
+  <p style="font-size:13px; color:var(--text-muted); text-align:center; margin:4px 0 10px;">Add SKUs now, or start count and add them as you go.</p>
+  <button id="btn-finish-setup">Start Count</button>
   <button id="btn-back-to-trailer" class="text-link-btn">Back</button>
 </div>
 
@@ -849,13 +862,14 @@ body.light-theme #pallet-pct {
 
 <!-- PHASE 4: FINAL WORK SESSION SIGN OUT REPORT -->
 <div id="signout-section" class="hidden">
-  <h2>Work Session Summary</h2>
-  <p id="so-worker-name" style="font-size:14px; font-weight:bold; margin:4px 0 12px 0; color: var(--text-color);">---</p>
+  <div class="section-heading-row">
+    <h2>Work Session Summary</h2>
+    <button class="theme-toggle-icon" onclick="document.body.classList.toggle('light-theme'); localStorage.setItem('lpt_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');" type="button" aria-label="Toggle light dark mode">🌓</button>
+  </div>
+  <p id="so-worker-name" class="summary-worker-name">---</p>
   <div class="signout-card">
     <h3 style="margin-top:0; color:var(--primary); text-align:center;" id="so-trailer">Door #---</h3>
-    <div style="display:flex; justify-content:flex-end; width:100%; margin-bottom:10px;">
-      <button id="btn-view-log" class="text-link-btn" style="font-weight:400; font-size:13px; text-decoration:underline; padding:0;">📋 View log →</button>
-    </div>
+
     <div class="so-top-stats">
       <div class="so-stat-box">
         <label>total boxes</label>
@@ -881,35 +895,26 @@ body.light-theme #pallet-pct {
       <thead>
         <tr>
           <th>SKU</th>
-          <th>Pattern</th>
-          <th>pallets</th>
-          <th>partial pallets / box count</th>
+          <th>Ti/Hi</th>
+          <th>Pallets Made</th>
           <th>Total Boxes</th>
         </tr>
       </thead>
       <tbody id="so-sku-rows"></tbody>
     </table>
   </div>
-  <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+  <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
     <button id="btn-new-trailer" class="success" style="margin-bottom:0;">Finish Session</button>
-    <button id="btn-export-summary-pdf" class="text-link-btn" style="margin-bottom:0;">Export summary as PDF</button>
+    <button id="btn-export-summary-pdf" class="secondary" style="margin-bottom:0;">Save Summary</button>
   </div>
-  <div id="summary-export-options" class="hidden" style="font-size:13px; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-bottom:15px;">
-    <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;"><input type="checkbox" id="summary-export-include-timestamps"> Include timestamps</label>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <button id="btn-perform-summary-pdf-export" class="success" style="width:auto; padding:8px 12px;">Export PDF</button>
-      <button id="btn-cancel-summary-pdf-export" class="secondary" style="width:auto; padding:8px 12px;">Cancel</button>
-    </div>
-    <p style="margin:10px 0 0 0; color:var(--text-muted);">When exporting, the PDF will contain the summary details and optional timestamped activity log.</p>
-  </div>
-</div>
-<div id="end-session-overlay" class="hidden" style="position:fixed; inset:0; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; z-index:9999; font-size:20px; text-align:center; padding:20px;">
-  Count session finalized.
 </div>
 
 <!-- PHASE 5: WORK HISTORY SECTION -->
 <div id="history-section" class="hidden">
-  <h2>Work History</h2>
+  <div class="section-heading-row" style="margin-bottom:12px;">
+    <h2 style="margin-bottom:0;">Work History</h2>
+    <button class="theme-toggle-icon" onclick="document.body.classList.toggle('light-theme'); localStorage.setItem('lpt_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');" type="button" aria-label="Toggle light dark mode">🌓</button>
+  </div>
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px;">
     <input type="text" id="history-name-filter" placeholder="Filter by worker name..." style="margin-bottom:0; font-size:14px; padding:8px;">
     <button id="btn-back-from-history" class="secondary" style="width:auto; padding:8px 12px; margin-bottom:0;">← Back</button>
@@ -923,8 +928,7 @@ body.light-theme #pallet-pct {
     <h3 style="text-align: center;">Activity Log</h3>
     <div id="modal-activity-log-list" style="max-height: 250px; overflow-y: auto; font-size: 12px; background: var(--bg-color); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 12px;"></div>
     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-      <button id="btn-modal-export-txt" class="secondary" style="margin-bottom: 0; font-size: 12px; padding: 8px;">📥 Export .TXT</button>
-      <button id="btn-modal-export-pdf" class="secondary" style="margin-bottom: 0; font-size: 12px; padding: 8px;">🖨️ Print / PDF</button>
+      <button id="btn-modal-export-pdf" class="secondary" style="margin-bottom: 0; font-size: 12px; padding: 8px;">🖨️ Save Activity Log</button>
     </div>
     <button id="btn-close-log-modal" class="success">Close</button>
   </div>
@@ -966,12 +970,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let manifestBoxes = 0;
   let manifestPallets = 0;
   let startTime = null;
+  let endTime = null;
   let skipNameDoorMode = false;
   let skus = [];
   let trackingData = {};
   let activityLogs = [];
   let currentSection = 'trailer-section';
   let lastUndoState = null;
+  let sessionSummarySaved = false;
+  let historyRecordsCache = {};
 
   // UI Elements
   const bodyEl = document.body;
@@ -1002,10 +1009,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyNameFilter = document.getElementById('history-name-filter');
   const historyListContainer = document.getElementById('history-list-container');
   const btnExportSummaryPdf = document.getElementById('btn-export-summary-pdf');
-  const summaryExportOptions = document.getElementById('summary-export-options');
-  const summaryExportIncludeTimestamps = document.getElementById('summary-export-include-timestamps');
-  const btnPerformSummaryPdfExport = document.getElementById('btn-perform-summary-pdf-export');
-  const btnCancelSummaryPdfExport = document.getElementById('btn-cancel-summary-pdf-export');
+  const summaryExportOptions = null; // panel removed
+  const summaryExportIncludeTimestamps = null;
+  const btnPerformSummaryTxtExport = null;
+  const btnPerformSummaryPdfExport = null;
+  const btnCancelSummaryPdfExport = null;
   
   const skuInput = document.getElementById('sku-input');
   const btnAddSku = document.getElementById('btn-add-sku');
@@ -1029,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const logModalOverlay = document.getElementById('log-modal-overlay');
   const modalActivityLogList = document.getElementById('modal-activity-log-list');
   const btnCloseLogModal = document.getElementById('btn-close-log-modal');
-  const btnModalExportTxt = document.getElementById('btn-modal-export-txt');
+  const btnModalExportTxt = null; // removed
   const btnModalExportPdf = document.getElementById('btn-modal-export-pdf');
   
   const modalOverlay = document.getElementById('modal-overlay');
@@ -1060,6 +1068,32 @@ document.addEventListener('DOMContentLoaded', () => {
   if (startScreenThemeToggle) {
     startScreenThemeToggle.addEventListener('click', toggleTheme);
   }
+
+  // Blank-start initialization
+  workerName = '';
+  doorNum = '';
+  manifestBoxes = 0;
+  manifestPallets = 0;
+  startTime = null;
+  endTime = null;
+  skipNameDoorMode = false;
+  skus = [];
+  trackingData = {};
+  activityLogs = [];
+  currentSection = 'trailer-section';
+  lastUndoState = null;
+  sessionSummarySaved = false;
+  workerNameInput.value = '';
+  doorNumInput.value = '';
+  skuInput.value = '';
+  midSkuInput.value = '';
+  clearErrorMessages();
+  hideAllSections();
+  trailerSection.classList.remove('hidden');
+  updateHeaderPreview();
+  updateMenuVisibility();
+  updateSkipButtonVisibility();
+  saveState();
 
   // Hamburger Menu Toggle
   hamburgerMenuBtn.addEventListener('click', (e) => {
@@ -1101,17 +1135,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateHeaderPreview() {
     const previewName = workerNameInput.value.trim();
     const previewDoor = doorNumInput.value.trim();
-    dispTrailerName.innerText = previewName ? previewName.toUpperCase() : 'WORKER';
+    if (currentSection === 'trailer-section') {
+      appHeaderBar.classList.add('hidden');
+    }
+    dispTrailerName.innerText = previewName ? previewName.toUpperCase() : '';
     if (previewDoor) {
       dispTrailerNum.innerText = `DOOR ${previewDoor}`;
       dispTrailerNum.classList.remove('hidden');
     } else {
       dispTrailerNum.classList.add('hidden');
-    }
-    if (currentSection === 'trailer-section' && (previewName || previewDoor)) {
-      appHeaderBar.classList.remove('hidden');
-    } else if (currentSection === 'trailer-section' && !skipNameDoorMode) {
-      appHeaderBar.classList.add('hidden');
     }
     btnSkipNameDoor.innerText = (previewName || previewDoor) ? 'Next' : 'Skip';
   }
@@ -1143,6 +1175,8 @@ document.addEventListener('DOMContentLoaded', () => {
   menuItemEndSession.addEventListener('click', () => {
     dropdownMenu.classList.remove('show');
     if (confirm("Are you sure you want to end this trailer count session?")) {
+      endTime = Date.now();
+      saveState();
       finalizeAndSaveSession();
       switchSection('signout-section');
       renderSignoutSummary();
@@ -1150,61 +1184,80 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Log Modal Exports
-  btnModalExportTxt.addEventListener('click', () => {
-    let headerLine = `LUMPER PALLET TRACKER - ACTIVITY LOG\n`;
-    if (doorNum && doorNum.trim().length > 0) {
-      headerLine += `Door #${doorNum} | Worker: ${workerName.toUpperCase()}\n\n`;
-    } else {
-      headerLine += `Worker: ${workerName.toUpperCase()}\n\n`;
-    }
-    let content = headerLine;
+  btnModalExportTxt && btnModalExportTxt.addEventListener('click', () => {
+    const w = workerName ? workerName.toUpperCase() : '';
+    const d = doorNum ? `Door #${doorNum}` : '';
+    const titleLine = [d, w].filter(Boolean).join(' | ') || 'Activity Log';
+    const divider = '='.repeat(60);
+    const subDivider = '-'.repeat(60);
+    let lines = [];
+    lines.push(divider);
+    lines.push('LUMPER PALLET TRACKER — ACTIVITY LOG');
+    lines.push(titleLine);
+    lines.push(divider);
+    lines.push('');
+    lines.push(`${'TIME'.padEnd(14)}${'SKU'.padEnd(10)}${'ACTION'.padEnd(28)}RUNNING TOTAL`);
+    lines.push(subDivider);
     activityLogs.forEach(l => {
-      content += `[${l.time}] SKU ${l.sku}: ${l.desc}\n`;
+      const time = `[${l.time || '--'}]`.padEnd(14);
+      const sku = `SKU ${l.sku || '--'}`.padEnd(10);
+      const desc = (l.desc || '').padEnd(28);
+      const total = `${l.totalBoxes} boxes`;
+      lines.push(`${time}${sku}${desc}${total}`);
     });
+    lines.push(subDivider);
+    const content = lines.join('\n');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const fileNameSuffix = doorNum && doorNum.trim().length > 0 ? `Door_${doorNum}` : `Worker_${workerName.toUpperCase() || 'LOG'}`;
-    a.download = `${fileNameSuffix}_Log.txt`;
+    const fileNameSuffix = doorNum && doorNum.trim().length > 0 ? `Door_${doorNum}` : `Worker_${workerName ? workerName.toUpperCase() : 'LOG'}`;
+    a.download = `${fileNameSuffix}_ActivityLog.txt`;
     a.click();
     URL.revokeObjectURL(url);
   });
 
   btnModalExportPdf.addEventListener('click', () => {
-    window.print();
+    const header = doorNum ? `Door #${doorNum}${workerName ? ' — ' + workerName.toUpperCase() : ''}` : (workerName ? workerName.toUpperCase() : 'Activity Log');
+    const rows = activityLogs.map(l =>
+      `<tr><td>[${l.time}]</td><td>SKU ${l.sku}</td><td>${l.desc}</td><td>${l.totalBoxes} boxes</td></tr>`
+    ).join('');
+    const docOpen = '<!doctype html><html><' + 'head><meta charset="utf-8"><title>Activity Log</title>'
+      + '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111;}'
+      + 'table{width:100%;border-collapse:collapse;margin-top:12px;}'
+      + 'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:13px;}'
+      + 'th{background:#f0f0f0;} tr:nth-child(even) td{background:#f9f9f9;}'
+      + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
+    const docClose = '</' + 'body></' + 'html>';
+    const body = `<h2>Activity Log — ${header}</h2><table><thead><tr><th>Time</th><th>SKU</th><th>Action</th><th>Running Total</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No entries</td></tr>'}</tbody></table>`;
+    const w = window.open('', '_blank', 'width=900,height=700');
+    if (!w) { alert('Please allow popups.'); return; }
+    w.document.write(docOpen + body + docClose);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); setTimeout(() => w.close(), 1000); }, 400);
   });
 
   // PERSISTENCE & LOCALSTORAGE RESTORATION
   function saveState() {
-    const state = { workerName, doorNum, manifestBoxes, manifestPallets, startTime, skus, trackingData, activityLogs, currentSection, skipNameDoorMode };
+    const state = { workerName, doorNum, manifestBoxes, manifestPallets, startTime, endTime, skus, trackingData, activityLogs, currentSection, skipNameDoorMode };
     try {
       localStorage.setItem('lpt_saved_session', JSON.stringify(state));
     } catch (e) {}
+    autoSaveToHistory();
+  }
+
+  function autoSaveToHistory() {
+    if (!startTime) return;
+    const record = buildSummaryRecord();
+    saveRecordToHistory(record);
   }
 
   function loadSavedSession() {
     try {
       const saved = localStorage.getItem('lpt_saved_session');
       if (saved) {
-        const state = JSON.parse(saved);
-        workerName = state.workerName || '';
-        doorNum = state.doorNum || '';
-        manifestBoxes = state.manifestBoxes || 0;
-        manifestPallets = state.manifestPallets || 0;
-        startTime = state.startTime || null;
-        skus = state.skus || [];
-        trackingData = state.trackingData || {};
-        normalizeTrackingData();
-        activityLogs = state.activityLogs || [];
-        skipNameDoorMode = state.skipNameDoorMode || false;
-        if (state.currentSection && state.currentSection !== 'trailer-section' && state.currentSection !== 'setup-section') {
-          updateTrackerHeader();
-          switchSection(state.currentSection);
-          if (state.currentSection === 'tracking-section') renderTable();
-          else if (state.currentSection === 'signout-section') renderSignoutSummary();
-          else if (state.currentSection === 'history-section') renderWorkHistory();
-        }
+        localStorage.removeItem('lpt_saved_session');
       }
     } catch (e) {
       localStorage.removeItem('lpt_saved_session');
@@ -1214,12 +1267,20 @@ document.addEventListener('DOMContentLoaded', () => {
   workerNameInput.value = '';
   doorNumInput.value = '';
 
+  function clearErrorMessages() {
+    ['error-message-1', 'error-message-2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerText = '';
+        el.style.display = 'none';
+      }
+    });
+  }
+
   function hideAllSections() {
-    trailerSection.classList.add('hidden');
-    setupSection.classList.add('hidden');
-    trackingSection.classList.add('hidden');
-    signoutSection.classList.add('hidden');
-    historySection.classList.add('hidden');
+    [trailerSection, setupSection, trackingSection, signoutSection, historySection].forEach(section => {
+      if (section) section.classList.add('hidden');
+    });
   }
 
   function switchSection(sectionId) {
@@ -1237,8 +1298,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       appHeaderBar.classList.add('hidden');
     }
-    document.getElementById(sectionId).classList.remove('hidden');
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+    }
     if (sectionId === 'trailer-section') {
+      clearErrorMessages();
       updateHeaderPreview();
     }
     updateMenuVisibility();
@@ -1247,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateTrackerHeader() {
-    dispTrailerName.innerText = workerName ? workerName.toUpperCase() : 'WORKER';
+    dispTrailerName.innerText = workerName ? workerName.toUpperCase() : '';
     if (doorNum && doorNum.trim().length > 0) {
       dispTrailerNum.innerText = `DOOR ${doorNum}`;
       dispTrailerNum.classList.remove('hidden');
@@ -1291,6 +1356,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') {
       e.preventDefault();
       doorNumInput.blur();
+      if (doorNumInput.value.trim().length === 3) {
+        btnSkipNameDoor.click();
+      }
     }
   });
 
@@ -1336,29 +1404,35 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  function findRecentHistoryByDoor(doorValue) {
+  function findRecentHistoryMatch(workerNameValue, doorValue) {
     if (!doorValue) return null;
     const history = getStoredHistory();
     const now = Date.now();
     const twentyFourHours = 24 * 60 * 60 * 1000;
+    const normalizedWorker = (workerNameValue || '').trim().toUpperCase();
     return history.find(h => {
       if (String(h.doorNum) !== String(doorValue)) return false;
       const recTime = h.timestamp || 0;
-      return (now - recTime) <= twentyFourHours;
+      if ((now - recTime) > twentyFourHours) return false;
+      if (!normalizedWorker) return true;
+      return String(h.workerName || '').toUpperCase() === normalizedWorker;
     });
   }
 
   function initializeSessionFromStartScreen() {
     const wVal = workerNameInput.value.trim();
     const dVal = doorNumInput.value.trim();
-    const matchedRecord = findRecentHistoryByDoor(dVal);
+    const matchedRecord = findRecentHistoryMatch(wVal, dVal);
     if (matchedRecord) {
-      const shouldContinue = window.confirm(`A count for Door #${dVal} was found from the last 24 hours. Continue that door or start a new session?`);
-      if (shouldContinue) {
-        restorePreviousDoorSession(matchedRecord);
-        return;
-      }
-      startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord);
+      openThreeOptionModal(
+        `Continue Door #${dVal}?`,
+        `<p>A recent session for Door #${dVal} was found in the last 24 hours.</p><p style="margin-top:8px;">Choose whether to continue the prior count or start a fresh count.</p>`,
+        'Continue Count',
+        () => restorePreviousDoorSession(matchedRecord),
+        'Start New Count',
+        () => startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord),
+        'Cancel'
+      );
       return;
     }
     startNewSession(wVal, dVal);
@@ -1400,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startNewSession(workerNameValue, doorValue) {
-    workerName = workerNameValue.toUpperCase();
+    workerName = workerNameValue ? workerNameValue.toUpperCase() : '';
     doorNum = doorValue;
     manifestBoxes = 0;
     manifestPallets = 0;
@@ -1408,13 +1482,14 @@ document.addEventListener('DOMContentLoaded', () => {
     skus = [];
     trackingData = {};
     activityLogs = [];
+    sessionSummarySaved = false;
     updateMenuVisibility();
     renderSkuTags();
     switchSection('setup-section');
   }
 
   function startNewSessionWithPreviousSkus(workerNameValue, doorValue, record) {
-    workerName = workerNameValue.toUpperCase();
+    workerName = workerNameValue ? workerNameValue.toUpperCase() : '';
     doorNum = doorValue;
     manifestBoxes = 0;
     manifestPallets = 0;
@@ -1425,13 +1500,14 @@ document.addEventListener('DOMContentLoaded', () => {
       trackingData[sku] = createTrackingEntry();
     });
     activityLogs = [];
+    sessionSummarySaved = false;
     updateMenuVisibility();
     renderSkuTags();
     switchSection('setup-section');
   }
 
   function restorePreviousDoorSession(record) {
-    workerName = record.workerName || 'WORKER';
+    workerName = record.workerName || '';
     doorNum = record.doorNum;
     manifestBoxes = record.manifestBoxes || 0;
     manifestPallets = record.manifestPallets || 0;
@@ -1442,25 +1518,22 @@ document.addEventListener('DOMContentLoaded', () => {
     activityLogs = Array.isArray(record.activityLogs) && record.activityLogs.length > 0
       ? JSON.parse(JSON.stringify(record.activityLogs))
       : [{ time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), sku: '---', desc: `Continued Door #${doorNum}` }];
+    endTime = null;
+    sessionSummarySaved = false;
     updateTrackerHeader();
     switchSection('tracking-section');
     renderTable();
+    renderLogModalList();
+    if (activityLogs.length > 0) {
+      const last = activityLogs[0];
+      topActivityTicker.innerHTML = `📋 [${last.time}] SKU ${last.sku}: ${last.desc}`;
+    }
     updateMenuVisibility();
   }
 
   // WORK HISTORY
   btnExportSummaryPdf.addEventListener('click', () => {
-    summaryExportOptions.classList.toggle('hidden');
-  });
-
-  btnPerformSummaryPdfExport.addEventListener('click', () => {
-    const includeTimestamps = summaryExportIncludeTimestamps.checked;
-    generateSummaryPdf(includeTimestamps);
-    summaryExportOptions.classList.add('hidden');
-  });
-
-  btnCancelSummaryPdfExport.addEventListener('click', () => {
-    summaryExportOptions.classList.add('hidden');
+    generateSummaryPdf();
   });
 
   btnBackFromHistory.addEventListener('click', () => {
@@ -1486,7 +1559,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveRecordToHistory(record) {
     try {
       const history = getStoredHistory();
-      history.unshift(record);
+      const idx = history.findIndex(h => h.id === record.id);
+      if (idx >= 0) {
+        history[idx] = record;
+      } else {
+        history.unshift(record);
+      }
       localStorage.setItem('lpt_work_history', JSON.stringify(history));
     } catch (e) {}
   }
@@ -1522,32 +1600,37 @@ document.addEventListener('DOMContentLoaded', () => {
       grouped[dateKey].push(item);
     });
 
+    historyRecordsCache = {};
     let html = '';
     for (const [dateKey, items] of Object.entries(grouped)) {
-      html += `<div class="history-day-group"><div class="history-day-title">📅 ${dateKey}</div>`;
+      const firstTs = items[0] && items[0].timestamp ? items[0].timestamp : null;
+      const dayOfWeek = firstTs ? new Date(firstTs).toLocaleDateString(undefined, { weekday: 'long' }) : '';
+      const dateDisplayStr = dayOfWeek ? `${dayOfWeek}, ${dateKey}` : dateKey;
+      html += `<div class="history-day-group"><div class="history-day-title">📅 ${dateDisplayStr}</div>`;
       items.forEach(h => {
-        const displayName = (h.workerName || 'UNKNOWN').toUpperCase();
-        const skuTotals = [];
+        historyRecordsCache[h.id] = h;
+        const displayName = (h.workerName || '').toUpperCase();
         const skuTracking = h.trackingData || {};
+
+        const countLogEntries = [];
         (h.skus || []).forEach(sku => {
-          const data = createTrackingEntry(skuTracking[sku] || {});
-          const perPallet = (data.ti || 0) * (data.hi || 0);
-          const partialSum = (data.partialPallets || []).reduce((a, b) => a + b, 0);
-          const skuTotalBoxes = (data.carryBoxes || 0) + ((data.fullPallets || 0) * perPallet) + partialSum + (data.partialBoxes || 0);
-          skuTotals.push(`<span style="display:inline-block; margin-right:8px;">SKU <strong>${sku}</strong>: <strong>${skuTotalBoxes}</strong></span>`);
+          const skuData = createTrackingEntry(skuTracking[sku] || {});
+          const skuEvents = (skuData.eventLog || []).filter(entry => entry && entry.type === 'count');
+          skuEvents.forEach(entry => {
+            const isLooseBox = (entry.detail || '').startsWith('Loose boxes');
+            const displayDetail = isLooseBox
+              ? (entry.detail || '').replace('Loose boxes +', '+').trim() + ' boxes'
+              : entry.detail || 'count';
+            const tihi = (!isLooseBox && entry.tihi) ? ` • ${entry.tihi}` : '';
+            countLogEntries.push(`<div style="font-size:12px; margin-bottom:4px;"><strong>[${entry.time || '--'}]</strong> ${displayDetail} • SKU ${sku}${tihi}</div>`);
+          });
         });
+        const countLogHtml = countLogEntries.length > 0
+          ? countLogEntries.join('')
+          : '<div style="font-size:12px; color:var(--text-muted);">No count entries logged.</div>';
 
-        const skuDrilldowns = (h.skus || []).map(sku => {
-          const skuLogs = (h.activityLogs || []).filter(log => String(log.sku) === String(sku));
-          const logRows = skuLogs.length === 0
-            ? `<div style="font-size:12px; color:var(--text-muted);">No timestamped changes saved for this SKU.</div>`
-            : skuLogs.map(log => `<div style="font-size:12px; margin-bottom:4px;"><strong>[${log.time}]</strong> ${log.desc}${typeof log.totalBoxes === 'number' ? ` <span style=\"color:var(--text-muted);\">(${log.totalBoxes} total)</span>` : ''}</div>`).join('');
-          return `<details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">SKU ${sku} changes (${skuLogs.length})</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color);">${logRows}</div></details>`;
-        }).join('');
-
-        const historyActions = (h.activityLogs || []).map(log => `<div style="font-size:12px; margin-bottom:4px;"><strong>[${log.time}]</strong> SKU ${log.sku}: ${log.desc}${typeof log.totalBoxes === 'number' ? ` <span style=\"color:var(--text-muted);\">(${log.totalBoxes} total)</span>` : ''}</div>`).join('');
-
-        html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>Door #${h.doorNum} — ${displayName}</span><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px; flex-wrap:wrap;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div><div style="font-size:12px; margin-top:8px; color:var(--text-color);">${skuTotals.join('')}<span style="display:inline-block; margin-left:4px;">Total: <strong>${h.totalBoxes}</strong></span></div><details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">View change history</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); max-height:180px; overflow:auto;">${historyActions || '<div style="font-size:12px; color:var(--text-muted);">No changes logged.</div>'}</div></details>${skuDrilldowns}</div>`;
+        const headerLabel = h.doorNum && displayName ? `Door #${h.doorNum} — ${displayName}` : h.doorNum ? `Door #${h.doorNum}` : displayName || 'Session';
+        html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>${headerLabel}</span><div style="display:flex;gap:6px;"><button class="secondary" data-summary-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Save Summary</button><button class="secondary" data-actlog-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Activity Log</button><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px; flex-wrap:wrap;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div><details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">Activity Log</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); max-height:180px; overflow:auto;">${countLogHtml}</div></details></div>`;
       });
       html += `</div>`;
     }
@@ -1555,6 +1638,18 @@ document.addEventListener('DOMContentLoaded', () => {
     historyListContainer.querySelectorAll('button[data-id]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         deleteHistoryRecord(e.target.getAttribute('data-id'));
+      });
+    });
+    historyListContainer.querySelectorAll('button[data-summary-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const rec = historyRecordsCache[e.target.getAttribute('data-summary-id')];
+        if (rec) generateHistoryRecordPdf(rec);
+      });
+    });
+    historyListContainer.querySelectorAll('button[data-actlog-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const rec = historyRecordsCache[e.target.getAttribute('data-actlog-id')];
+        if (rec) generateHistoryActivityLogPdf(rec);
       });
     });
   }
@@ -1577,7 +1672,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const matchedRecord = findRecentHistoryByDoor(dVal);
+    const matchedRecord = findRecentHistoryMatch(wVal, dVal);
     if (!matchedRecord) {
       skipNameDoorMode = false;
       saveState();
@@ -1672,6 +1767,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnFinish.addEventListener('click', () => {
+    const wVal = (workerNameInput.value.trim() || workerName || '').trim();
+    const dVal = doorNumInput.value.trim();
+    const matchedRecord = findRecentHistoryMatch(wVal, dVal);
+
+    if (matchedRecord && dVal) {
+      openThreeOptionModal(
+        `Continue Door #${dVal}?`,
+        `<p>A recent session for Door #${dVal} was found in the last 24 hours.</p><p style="margin-top:8px;">Continue the prior count or start a new count with the SKUs you entered.</p>`,
+        'Continue Count',
+        () => restorePreviousDoorSession(matchedRecord),
+        'Start New Count',
+        () => {
+          workerName = wVal.toUpperCase();
+          doorNum = dVal;
+          manifestBoxes = 0;
+          manifestPallets = 0;
+          startTime = Date.now();
+          activityLogs = [];
+          sessionSummarySaved = false;
+          const freshTrackingData = {};
+          skus.forEach(sku => {
+            freshTrackingData[sku] = createTrackingEntry();
+          });
+          trackingData = freshTrackingData;
+          updateTrackerHeader();
+          switchSection('tracking-section');
+          renderTable();
+          saveState();
+        },
+        'Cancel'
+      );
+      return;
+    }
+
     updateTrackerHeader();
     switchSection('tracking-section');
     renderTable();
@@ -1924,8 +2053,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalActivityLogList.innerHTML = content;
   }
 
-  // END SESSION / SIGN OUT HANDLER
-  function finalizeAndSaveSession() {
+  function buildSummaryRecord() {
     let grandBoxes = 0;
     let grandPallets = 0;
     skus.forEach(sku => {
@@ -1937,18 +2065,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const now = new Date();
     const dateStr = now.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    const durationMs = startTime ? (Date.now() - startTime) : 0;
+    const durationMs = startTime ? ((endTime || Date.now()) - startTime) : 0;
     const durationMins = Math.floor(durationMs / 60000);
     const hrs = Math.floor(durationMins / 60);
     const mins = durationMins % 60;
     const durationStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} mins`;
-    const record = {
-      id: 'rec_' + Date.now(),
+    return {
+      id: 'rec_' + (startTime || Date.now()),
       timestamp: startTime || Date.now(),
-      workerName: workerName.toUpperCase(),
+      workerName: (workerName || '').toUpperCase(),
       doorNum,
       dateStr,
       durationStr,
+      totalTimeMins: durationMins,
       totalBoxes: grandBoxes,
       totalPallets: grandPallets,
       manifestBoxes,
@@ -1957,10 +2086,240 @@ document.addEventListener('DOMContentLoaded', () => {
       trackingData: JSON.parse(JSON.stringify(trackingData)),
       activityLogs: JSON.parse(JSON.stringify(activityLogs))
     };
+  }
+
+  // Returns <tr> HTML for one SKU in the summary table, with per-pattern pallet breakdown
+  function buildSkuSummaryRows(sku, data, totalSkuBoxes, bold) {
+    const skuCell = bold ? `<strong>${sku}</strong>` : sku;
+    const boxCell = bold ? `<strong>${totalSkuBoxes}</strong>` : totalSkuBoxes;
+    const currentPattern = data.ti > 0 && data.hi > 0 ? `${data.ti}/${data.hi}` : '-';
+
+    // Count full pallets per Ti/Hi
+    const fullCounts = {};
+    (data.eventLog || []).forEach(entry => {
+      if (entry.type === 'count' && entry.detail === '+1 pallet' && entry.tihi) {
+        fullCounts[entry.tihi] = (fullCounts[entry.tihi] || 0) + 1;
+      }
+    });
+    const totalFullPallets = (data.carryPallets || 0) + (data.fullPallets || 0);
+    const countedFull = Object.values(fullCounts).reduce((a, b) => a + b, 0);
+    if (totalFullPallets > countedFull) {
+      fullCounts[currentPattern] = (fullCounts[currentPattern] || 0) + (totalFullPallets - countedFull);
+    }
+
+    // Fold partial pallets into the matching Ti/Hi bucket (or current pattern)
+    (data.eventLog || []).forEach(entry => {
+      if (entry.type === 'partial' && entry.tihi && entry.tihi !== '-') {
+        fullCounts[entry.tihi] = (fullCounts[entry.tihi] || 0) + 1;
+      }
+    });
+    // Safety net for any unlogged partial pallets
+    const totalPartials = (data.partialPallets || []).length;
+    const countedPartials = (data.eventLog || []).filter(e => e.type === 'partial').length;
+    if (totalPartials > countedPartials) {
+      fullCounts[currentPattern] = (fullCounts[currentPattern] || 0) + (totalPartials - countedPartials);
+    }
+
+    const allPatterns = Object.keys(fullCounts);
+
+    if (allPatterns.length === 0) {
+      return `<tr><td>${skuCell}</td><td>${currentPattern}</td><td>0</td><td>${boxCell}</td></tr>`;
+    }
+    if (allPatterns.length === 1) {
+      return `<tr><td>${skuCell}</td><td>${allPatterns[0]}</td><td>${fullCounts[allPatterns[0]]}</td><td>${boxCell}</td></tr>`;
+    }
+    let rows = '';
+    allPatterns.forEach((pattern, i) => {
+      if (i === 0) {
+        rows += `<tr><td rowspan="${allPatterns.length}" style="vertical-align:top;">${skuCell}</td><td>${pattern}</td><td>${fullCounts[pattern]}</td><td rowspan="${allPatterns.length}" style="vertical-align:top;">${boxCell}</td></tr>`;
+      } else {
+        rows += `<tr><td>${pattern}</td><td>${fullCounts[pattern]}</td></tr>`;
+      }
+    });
+    return rows;
+  }
+
+  function finalizeAndSaveSession() {
+    if (sessionSummarySaved) return false;
+    const record = buildSummaryRecord();
     saveRecordToHistory(record);
+    sessionSummarySaved = true;
     try {
       localStorage.removeItem('lpt_saved_session');
     } catch (e) {}
+    return true;
+  }
+
+  function buildSummaryExportText() {
+    let grandBoxes = 0;
+    let grandPallets = 0;
+    let skuRowsText = '';
+    skus.forEach(sku => {
+      const data = createTrackingEntry(trackingData[sku]);
+      const perPallet = data.ti * data.hi;
+      const partialBoxesSum = data.partialPallets.reduce((a, b) => a + b, 0);
+      const totalSkuBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
+      const totalSkuPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
+      grandBoxes += totalSkuBoxes;
+      grandPallets += totalSkuPallets;
+      const patternCounts = {};
+      (data.eventLog || []).forEach(entry => {
+        if (entry.type === 'count' && entry.detail === '+1 pallet' && entry.tihi) {
+          patternCounts[entry.tihi] = (patternCounts[entry.tihi] || 0) + 1;
+        }
+      });
+      const totalFullPallets = data.carryPallets + data.fullPallets;
+      const countedPallets = Object.values(patternCounts).reduce((a, b) => a + b, 0);
+      const currentPattern = data.ti > 0 && data.hi > 0 ? `${data.ti}/${data.hi}` : '-';
+      if (totalFullPallets > countedPallets) patternCounts[currentPattern] = (patternCounts[currentPattern] || 0) + (totalFullPallets - countedPallets);
+      const patternLines = Object.entries(patternCounts).map(([p, n]) => `${p} x${n}`).join(', ');
+      skuRowsText += `SKU ${sku} | Pattern(s) ${patternLines || currentPattern} | Total Boxes ${totalSkuBoxes}\n`;
+    });
+
+    const avgMinutes = grandPallets > 0 ? Math.max(1, Math.floor((Date.now() - startTime) / 60000 / grandPallets)) : null;
+    const totalTimeMins = startTime ? Math.floor((Date.now() - startTime) / 60000) : 0;
+    const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
+    const lines = [];
+    lines.push('LUMPER PALLET TRACKER - WORK SESSION SUMMARY');
+    lines.push(`Worker: ${workerName ? workerName.toUpperCase() : 'WORKER'}`);
+    lines.push(`Door: ${doorNum || '---'}`);
+    lines.push(`Total Boxes: ${grandBoxes}`);
+    lines.push(`Total Pallets: ${grandPallets}`);
+    lines.push(`Avg Time / Pallet: ${avgMinutes ? `${avgMinutes} min` : 'N/A'}`);
+    lines.push(`Duration: ${totalTimeDecimal}h`);
+    lines.push('');
+    lines.push('SKU BREAKDOWN');
+    lines.push(skuRowsText || 'No SKU data');
+    return lines.join('\n');
+  }
+
+  function exportSummaryText() {
+    const content = buildSummaryExportText();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const fileNameSuffix = doorNum && doorNum.trim().length > 0 ? `Door_${doorNum}` : `Worker_${workerName.toUpperCase() || 'SUMMARY'}`;
+    a.download = `${fileNameSuffix}_Summary.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function buildSummaryExportHtml() {
+    let grandBoxes = 0;
+    let grandPallets = 0;
+    let skuRowsHtml = '';
+    skus.forEach(sku => {
+      const data = createTrackingEntry(trackingData[sku]);
+      const perPallet = data.ti * data.hi;
+      const partialBoxesSum = data.partialPallets.reduce((a, b) => a + b, 0);
+      const totalSkuBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
+      const totalSkuPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
+      grandBoxes += totalSkuBoxes;
+      grandPallets += totalSkuPallets;
+      skuRowsHtml += buildSkuSummaryRows(sku, data, totalSkuBoxes, false);
+    });
+    const refTime = endTime || Date.now();
+    const avgMinutes = grandPallets > 0 ? Math.max(1, Math.floor((refTime - startTime) / 60000 / grandPallets)) : null;
+    const totalTimeMins = startTime ? Math.floor((refTime - startTime) / 60000) : 0;
+    const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
+    const countLogRows = null; // activity log excluded from summary
+    const docOpen = '<!doctype html><html><' + 'head><meta charset="utf-8"><title>Session Summary</title>'
+      + '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111;}'
+      + 'h1{margin-bottom:6px;} p{margin:2px 0;font-size:13px;} h3{margin-top:18px;margin-bottom:6px;}'
+      + 'table{width:100%;border-collapse:collapse;margin-top:8px;}'
+      + 'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:13px;}'
+      + 'th{background:#f0f0f0;font-weight:bold;}'
+      + 'tr:nth-child(even) td{background:#f9f9f9;}'
+      + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
+    const docClose = '</' + 'body></' + 'html>';
+    const bodyContent = `<h1>Work Session Summary</h1>${workerName ? `<p><strong>Worker:</strong> ${workerName.toUpperCase()}</p>` : ''}<p><strong>Door:</strong> ${doorNum || '---'}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>`;
+    return docOpen + bodyContent + docClose;
+  }
+
+  function generateSummaryPdf() {
+    const printWindow = window.open('', '_blank', 'width=900,height=1200');
+    if (!printWindow) {
+      alert('Please allow popups to export the session summary as PDF.');
+      return;
+    }
+    const html = buildSummaryExportHtml();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      setTimeout(() => printWindow.close(), 1000);
+    }, 500);
+  }
+
+  function generateHistoryRecordPdf(record) {
+    const recSkus = record.skus || [];
+    const recTracking = record.trackingData || {};
+    let grandBoxes = 0, grandPallets = 0, skuRowsHtml = '';
+    recSkus.forEach(sku => {
+      const data = createTrackingEntry(recTracking[sku] || {});
+      const perPallet = data.ti * data.hi;
+      const partialBoxesSum = data.partialPallets.reduce((a, b) => a + b, 0);
+      const totalSkuBoxes = data.carryBoxes + (data.fullPallets * perPallet) + partialBoxesSum + data.partialBoxes;
+      const totalSkuPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
+      grandBoxes += totalSkuBoxes;
+      grandPallets += totalSkuPallets;
+      skuRowsHtml += buildSkuSummaryRows(sku, data, totalSkuBoxes, false);
+    });
+    const totalTimeMins = record.totalTimeMins || 0;
+    const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
+    const avgMinutes = grandPallets > 0 && totalTimeMins > 0 ? Math.max(1, Math.floor(totalTimeMins / grandPallets)) : null;
+    const recName = record.workerName || '';
+    const recDoor = record.doorNum || '';
+    const countLogRows = recSkus.map(sku => {
+      const data = createTrackingEntry(recTracking[sku] || {});
+      const entries = (data.eventLog || []).filter(e => e && e.type === 'count');
+      if (!entries.length) return '';
+      const rows = entries.map(e => `<div style="margin:4px 0;">${e.time || '--'} • SKU ${sku} • ${e.tihi || '-'} • ${e.detail || 'count'}</div>`).join('');
+      return `<div style="margin-top:8px;"><strong>SKU ${sku}</strong>${rows}</div>`;
+    }).join('');
+    const docOpen = '<!doctype html><html><' + 'head><meta charset="utf-8"><title>Session Summary</title>'
+      + '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111;}'
+      + 'h1{margin-bottom:6px;} p{margin:2px 0;font-size:13px;} h3{margin-top:18px;margin-bottom:6px;}'
+      + 'table{width:100%;border-collapse:collapse;margin-top:8px;}'
+      + 'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:13px;}'
+      + 'th{background:#f0f0f0;font-weight:bold;}'
+      + 'tr:nth-child(even) td{background:#f9f9f9;}'
+      + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
+    const docClose = '</' + 'body></' + 'html>';
+    const bodyContent = `<h1>Work Session Summary</h1>${recName ? `<p><strong>Worker:</strong> ${recName}</p>` : ''}${recDoor ? `<p><strong>Door:</strong> #${recDoor}</p>` : ''}<p><strong>Date:</strong> ${record.dateStr || ''}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>`;
+    const printWindow = window.open('', '_blank', 'width=900,height=1200');
+    if (!printWindow) { alert('Please allow popups to export.'); return; }
+    printWindow.document.write(docOpen + bodyContent + docClose);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); setTimeout(() => printWindow.close(), 1000); }, 500);
+  }
+
+  function generateHistoryActivityLogPdf(record) {
+    const recName = record.workerName || '';
+    const recDoor = record.doorNum || '';
+    const header = recDoor ? `Door #${recDoor}${recName ? ' — ' + recName : ''}` : (recName || 'Activity Log');
+    const logs = record.activityLogs || [];
+    const rows = logs.map(l =>
+      `<tr><td>[${l.time || '--'}]</td><td>SKU ${l.sku || '--'}</td><td>${l.desc || ''}</td><td>${l.totalBoxes !== undefined ? l.totalBoxes + ' boxes' : ''}</td></tr>`
+    ).join('');
+    const docOpen = '<!doctype html><html><' + 'head><meta charset="utf-8"><title>Activity Log</title>'
+      + '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111;}'
+      + 'h2{margin-bottom:6px;} p{margin:2px 0 10px;color:#555;font-size:13px;}'
+      + 'table{width:100%;border-collapse:collapse;margin-top:12px;}'
+      + 'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:13px;}'
+      + 'th{background:#f0f0f0;} tr:nth-child(even) td{background:#f9f9f9;}'
+      + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
+    const docClose = '</' + 'body></' + 'html>';
+    const body = `<h2>Activity Log — ${header}</h2><p>${record.dateStr || ''} &nbsp;|  Duration: ${record.durationStr || '--'}</p><table><thead><tr><th>Time</th><th>SKU</th><th>Action</th><th>Running Total</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No entries</td></tr>'}</tbody></table>`;
+    const w = window.open('', '_blank', 'width=900,height=700');
+    if (!w) { alert('Please allow popups.'); return; }
+    w.document.write(docOpen + body + docClose);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); setTimeout(() => w.close(), 1000); }, 400);
   }
 
   function renderSignoutSummary() {
@@ -1975,10 +2334,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalSkuPallets = data.carryPallets + data.fullPallets + data.partialPallets.length;
       grandBoxes += totalSkuBoxes;
       grandPallets += totalSkuPallets;
-      const patternStr = perPallet > 0 ? `${data.ti}/${data.hi}` : '-';
-      const partialBoxesTotal = partialBoxesSum + data.partialBoxes;
-      const partialsStr = `${data.partialPallets.length} / ${partialBoxesTotal}`;
-      skuRowsHtml += `<tr><td><strong>${sku}</strong></td><td>${patternStr}</td><td>${data.carryPallets + data.fullPallets}</td><td>${partialsStr}</td><td><strong>${totalSkuBoxes}</strong></td></tr>`;
+      skuRowsHtml += buildSkuSummaryRows(sku, data, totalSkuBoxes, true);
     });
     
     if (skipNameDoorMode) {
@@ -1991,7 +2347,11 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         document.getElementById('so-trailer').classList.add('hidden');
       }
-      document.getElementById('so-worker-name').classList.remove('hidden');
+      if (workerName && workerName.trim().length > 0) {
+        document.getElementById('so-worker-name').classList.remove('hidden');
+      } else {
+        document.getElementById('so-worker-name').classList.add('hidden');
+      }
     }
 
     // Check manifestBoxes (if left blank/0, show without /)
@@ -2017,27 +2377,19 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('so-pallets').innerText = grandPallets;
       palletPctEl.classList.add('hidden');
     }
-    const avgMinutes = grandPallets > 0 ? Math.max(1, Math.floor((Date.now() - startTime) / 60000 / grandPallets)) : null;
+    const refTime = endTime || Date.now();
+    const avgMinutes = grandPallets > 0 ? Math.max(1, Math.floor((refTime - startTime) / 60000 / grandPallets)) : null;
     document.getElementById('so-avg-pallet').innerText = avgMinutes ? `${avgMinutes} min` : 'N/A';
-    const totalTimeMins = startTime ? Math.floor((Date.now() - startTime) / 60000) : 0;
+    const totalTimeMins = startTime ? Math.floor((refTime - startTime) / 60000) : 0;
     const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
     document.getElementById('so-total-time').innerText = `${totalTimeDecimal}h`;
-    document.getElementById('so-worker-name').innerText = workerName ? workerName.toUpperCase() : 'WORKER';
+    document.getElementById('so-worker-name').innerText = workerName ? workerName.toUpperCase() : '';
 
     document.getElementById('so-sku-rows').innerHTML = skuRowsHtml;
-    showEndSessionOverlay();
-  }
-
-  function showEndSessionOverlay() {
-    const overlay = document.getElementById('end-session-overlay');
-    if (!overlay) return;
-    overlay.classList.remove('hidden');
-    setTimeout(() => {
-      overlay.classList.add('hidden');
-    }, 3000);
   }
 
   btnNewTrailer.addEventListener('click', () => {
+    finalizeAndSaveSession();
     try { localStorage.removeItem('lpt_saved_session'); } catch(e) {}
     location.reload();
   });
@@ -2141,7 +2493,7 @@ document.addEventListener('DOMContentLoaded', () => {
           captureUndoState(`Added unique pallet ${uTi}/${uHi} (${uBoxes} boxes) to SKU ${sku}`);
           trackingData[sku].partialPallets.push(uBoxes);
           recordSkuEvent(sku, 'partial', `Partial pallet ${uTi}/${uHi} (${uBoxes} boxes)`, `${uTi}/${uHi}`);
-          actionParts.push('+1 partial pallet');
+          actionParts.push(`+1 partial pallet (${uTi}/${uHi})`);
           updated = true;
         }
       }
@@ -2490,6 +2842,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load session on startup
   loadSavedSession();
+  switchSection('trailer-section');
+  updateHeaderPreview();
 });
 </script>
 </body>
