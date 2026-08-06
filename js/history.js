@@ -6,13 +6,17 @@ import { getStoredHistory, deleteHistoryRecord } from './storage.js';
 import { createTrackingEntry } from './session.js';
 import { generateHistoryRecordPdf, generateHistoryActivityLogPdf } from './export.js';
 
-export function findRecentHistoryMatch(workerNameValue, doorValue) {
+export function findRecentHistoryMatch(workerNameValue, doorValue, excludeCurrentSession = false) {
   if (!doorValue) return null;
   const history = getStoredHistory();
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000;
   const normalizedWorker = (workerNameValue || '').trim().toUpperCase();
   return history.find(h => {
+    // The in-progress session auto-saves itself to history as soon as it
+    // starts, so once a session is under way it would otherwise immediately
+    // show up as a "recent match" for its own door number.
+    if (excludeCurrentSession && state.startTime && h.timestamp === state.startTime) return false;
     if (String(h.doorNum) !== String(doorValue)) return false;
     const recTime = h.timestamp || 0;
     if ((now - recTime) > twentyFourHours) return false;

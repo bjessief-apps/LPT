@@ -428,7 +428,7 @@ dom.btnMidAddSku.addEventListener('click', () => {
 dom.btnFinish.addEventListener('click', () => {
   const wVal = (dom.workerNameInput.value.trim() || state.workerName || '').trim();
   const dVal = dom.doorNumInput.value.trim();
-  const matchedRecord = findRecentHistoryMatch(wVal, dVal);
+  const matchedRecord = findRecentHistoryMatch(wVal, dVal, true);
 
   if (matchedRecord && dVal) {
     openThreeOptionModal(
