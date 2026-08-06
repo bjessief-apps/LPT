@@ -104,10 +104,10 @@ export function recordSkuEvent(sku, type, detail, tiHiAtMoment, solo = false) {
   });
 }
 
-export function startNewSession(workerNameValue, doorValue) {
+export function startNewSession(workerNameValue, doorValue, manifestBoxesValue = 0) {
   state.workerName = workerNameValue ? workerNameValue.toUpperCase() : '';
   state.doorNum = doorValue;
-  state.manifestBoxes = 0;
+  state.manifestBoxes = manifestBoxesValue;
   state.manifestPallets = 0;
   state.startTime = Date.now();
   state.skus = [];
@@ -119,10 +119,10 @@ export function startNewSession(workerNameValue, doorValue) {
   switchSection('setup-section');
 }
 
-export function startNewSessionWithPreviousSkus(workerNameValue, doorValue, record) {
+export function startNewSessionWithPreviousSkus(workerNameValue, doorValue, record, manifestBoxesValue = 0) {
   state.workerName = workerNameValue ? workerNameValue.toUpperCase() : '';
   state.doorNum = doorValue;
-  state.manifestBoxes = 0;
+  state.manifestBoxes = manifestBoxesValue;
   state.manifestPallets = 0;
   state.startTime = Date.now();
   state.skus = record.skus ? [...record.skus] : [];

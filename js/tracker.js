@@ -5,6 +5,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { closeModal, setModalActionButtons } from './modal.js';
 import { createTrackingEntry, recordSkuEvent, getTiHiString, captureUndoState, logEntry } from './session.js';
+import { updatePayoutDisplay } from './payout.js';
 import { saveState } from './storage.js';
 import { renderSkuTags, deleteSku } from './sku.js';
 
@@ -503,6 +504,7 @@ export function recalculateOverallTotals() {
     dom.grandTotalPallets.innerText = grandPallets;
     dom.palletPct.classList.add('hidden');
   }
+  updatePayoutDisplay();
 }
 
 dom.trackingSection.addEventListener('focusin', (e) => {

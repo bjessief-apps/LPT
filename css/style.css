@@ -404,6 +404,31 @@ input[type=number] {
   display: block;
   margin-top: 2px;
 }
+.payout-banner {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.payout-banner .payout-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.payout-banner .payout-amount {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--primary);
+}
+.payout-banner .payout-of {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--text-muted);
+}
 body.light-theme #box-pct,
 body.light-theme #pallet-pct {
   color: #2f8f46;

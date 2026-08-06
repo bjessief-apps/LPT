@@ -10,7 +10,7 @@ import {
 import { generateSummaryPdf, renderSignoutSummary } from './export.js';
 import { addSkuToList } from './sku.js';
 import { renderTable, recalculateOverallTotals } from './tracker.js';
-
+import { togglePayoutVisibility } from './payout.js';
 
 // Theme Initialization
 const savedTheme = localStorage.getItem('lpt_theme') || 'dark';
@@ -44,6 +44,7 @@ state.lastUndoState = null;
 state.sessionSummarySaved = false;
 dom.workerNameInput.value = '';
 dom.doorNumInput.value = '';
+dom.sendersCountInput.value = '';
 dom.skuInput.value = '';
 dom.midSkuInput.value = '';
 clearErrorMessages();
@@ -71,9 +72,11 @@ export function updateMenuVisibility() {
   if (state.currentSection === 'tracking-section') {
     dom.menuItemSendersCount.classList.remove('hidden');
     dom.menuItemSoloPallets.classList.remove('hidden');
+    dom.menuItemPayoutToggle.classList.remove('hidden');
   } else {
     dom.menuItemSendersCount.classList.add('hidden');
     dom.menuItemSoloPallets.classList.add('hidden');
+    dom.menuItemPayoutToggle.classList.add('hidden');
   }
 
   if (state.currentSection === 'tracking-section' || state.currentSection === 'setup-section') {
@@ -131,6 +134,11 @@ dom.menuItemSoloPallets.addEventListener('click', () => {
 
 dom.btnCloseSoloPalletsModal.addEventListener('click', () => {
   dom.soloPalletsModalOverlay.classList.add('hidden');
+});
+
+dom.menuItemPayoutToggle.addEventListener('click', () => {
+  dom.dropdownMenu.classList.remove('show');
+  togglePayoutVisibility();
 });
 
 dom.menuItemLog.addEventListener('click', () => {
@@ -309,8 +317,15 @@ dom.doorNumInput.addEventListener('keydown', (e) => {
     e.preventDefault();
     dom.doorNumInput.blur();
     if (dom.doorNumInput.value.trim().length === 3) {
-      dom.btnSkipNameDoor.click();
+      dom.sendersCountInput.focus();
     }
+  }
+});
+dom.sendersCountInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    dom.sendersCountInput.blur();
+    dom.btnSkipNameDoor.click();
   }
 });
 
@@ -338,16 +353,23 @@ dom.historyNameFilter.addEventListener('input', () => {
 dom.btnBackToTrailer.addEventListener('click', () => {
   dom.workerNameInput.value = state.workerName;
   dom.doorNumInput.value = state.doorNum;
+  dom.sendersCountInput.value = state.manifestBoxes || '';
   switchSection('trailer-section');
 });
 
 dom.btnSkipNameDoor.addEventListener('click', () => {
   const wVal = dom.workerNameInput.value.trim();
   const dVal = dom.doorNumInput.value.trim();
+  const sendersCountVal = parseInt(dom.sendersCountInput.value, 10) || 0;
   if (!wVal && !dVal) {
     state.skipNameDoorMode = true;
     saveState();
-    startNewSession('', '');
+    startNewSession('', '', 0);
+    return;
+  }
+
+  if (!dVal || sendersCountVal <= 0) {
+    showError('error-message-1', "Door number and Sender's Count (total boxes) are required.");
     return;
   }
 
@@ -355,7 +377,7 @@ dom.btnSkipNameDoor.addEventListener('click', () => {
   if (!matchedRecord) {
     state.skipNameDoorMode = false;
     saveState();
-    startNewSession(wVal, dVal);
+    startNewSession(wVal, dVal, sendersCountVal);
     return;
   }
 
@@ -368,7 +390,7 @@ dom.btnSkipNameDoor.addEventListener('click', () => {
     () => {
       state.skipNameDoorMode = false;
       saveState();
-      startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord);
+      startNewSessionWithPreviousSkus(wVal, dVal, matchedRecord, sendersCountVal);
     },
     'Cancel'
   );
@@ -418,7 +440,6 @@ dom.btnFinish.addEventListener('click', () => {
       () => {
         state.workerName = wVal.toUpperCase();
         state.doorNum = dVal;
-        state.manifestBoxes = 0;
         state.manifestPallets = 0;
         state.startTime = Date.now();
         state.activityLogs = [];
