@@ -5,6 +5,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { closeModal, setModalActionButtons } from './modal.js';
 import { createTrackingEntry, recordSkuEvent, getTiHiString, captureUndoState, logEntry } from './session.js';
+import { updatePayoutDisplay } from './payout.js';
 import { saveState } from './storage.js';
 import { renderSkuTags, deleteSku } from './sku.js';
 
@@ -276,16 +277,17 @@ function openTapModal(sku) {
     return;
   }
   dom.modalTitle.innerText = "+1 Completed Pallet";
-  dom.modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div>`;
+  dom.modalBody.innerHTML = `<div class="modal-sku-label">SKU</div><div class="modal-sku-number">${sku}</div><label style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:normal; color:var(--text-muted); margin-top:4px; cursor:pointer;"><input type="checkbox" id="modal-solo-pallet-checkbox" style="width:auto; margin:0;">Solo pallet (counted alone)</label>`;
   dom.modalConfirmBtn.className = "success";
   dom.modalConfirmBtn.innerText = "Confirm";
   setModalActionButtons({ showConfirm: true, showSecondary: false });
   dom.modalConfirmBtn.onclick = () => {
+    const isSolo = document.getElementById('modal-solo-pallet-checkbox').checked;
     captureUndoState(`Added one pallet to SKU ${sku}`);
     state.trackingData[sku].fullPallets += 1;
-    recordSkuEvent(sku, 'count', '+1 pallet', getTiHiString(state.trackingData[sku]));
+    recordSkuEvent(sku, 'count', '+1 pallet', getTiHiString(state.trackingData[sku]), isSolo);
     updateRowTotals(sku);
-    logEntry(sku, "+1 pallet");
+    logEntry(sku, isSolo ? "+1 pallet (solo)" : "+1 pallet");
     closeModal();
   };
   dom.modalOverlay.classList.remove('hidden');
@@ -502,6 +504,7 @@ export function recalculateOverallTotals() {
     dom.grandTotalPallets.innerText = grandPallets;
     dom.palletPct.classList.add('hidden');
   }
+  updatePayoutDisplay();
 }
 
 dom.trackingSection.addEventListener('focusin', (e) => {

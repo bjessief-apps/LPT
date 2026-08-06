@@ -2,7 +2,9 @@
 // (the signout screen, the "Save Summary" text/PDF exports, and history
 // record exports), plus the signout screen's own render function.
 import { state } from './state.js';
-import { createTrackingEntry } from './session.js';
+import { dom } from './dom.js';
+import { createTrackingEntry, getSoloPalletBreakdown } from './session.js';
+import { calcTotalPayout, calcEarnedPayout, formatCurrency } from './payout.js';
 
 export function buildSkuSummaryRows(sku, data, totalSkuBoxes, bold) {
   const skuCell = bold ? `<strong>${sku}</strong>` : sku;
@@ -85,7 +87,7 @@ export function buildSummaryExportText() {
   const totalTimeDecimal = (totalTimeMins / 60).toFixed(2);
   const lines = [];
   lines.push('LUMPER PALLET TRACKER - WORK SESSION SUMMARY');
-  lines.push(`Worker: ${state.workerName ? state.workerName.toUpperCase() : 'WORKER'}`);
+  lines.push(state.workerName ? state.workerName.toUpperCase() : 'WORKER');
   lines.push(`Door: ${state.doorNum || '---'}`);
   lines.push(`Total Boxes: ${grandBoxes}`);
   lines.push(`Total Pallets: ${grandPallets}`);
@@ -137,7 +139,18 @@ export function buildSummaryExportHtml() {
     + 'tr:nth-child(even) td{background:#f9f9f9;}'
     + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
   const docClose = '</' + 'body></' + 'html>';
-  const bodyContent = `<h1>Work Session Summary</h1>${state.workerName ? `<p><strong>Worker:</strong> ${state.workerName.toUpperCase()}</p>` : ''}<p><strong>Door:</strong> ${state.doorNum || '---'}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>`;
+  const soloRows = dom.soIncludeSoloCheckbox.checked ? getSoloPalletBreakdown() : [];
+  const soloSectionHtml = dom.soIncludeSoloCheckbox.checked
+    ? `<h3>Solo Pallets</h3><table><thead><tr><th>SKU</th><th>Solo Pallets</th><th>Solo Boxes</th></tr></thead><tbody>${
+        soloRows.length === 0
+          ? '<tr><td colspan="3">No solo pallets counted</td></tr>'
+          : soloRows.map(row => `<tr><td>${row.sku}</td><td>${row.count}</td><td>${row.boxes}</td></tr>`).join('')
+      }</tbody></table>`
+    : '';
+  const payoutHtml = state.manifestBoxes > 0
+    ? `<p><strong>Total Payout:</strong> ${formatCurrency(calcTotalPayout(state.manifestBoxes))}</p><p><strong>Earned Payout:</strong> ${formatCurrency(calcEarnedPayout(grandBoxes, state.manifestBoxes))}</p>`
+    : '';
+  const bodyContent = `<h1>Work Session Summary</h1>${state.workerName ? `<p><strong>${state.workerName.toUpperCase()}</strong></p>` : ''}<p><strong>Door:</strong> ${state.doorNum || '---'}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p>${payoutHtml}<h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>${soloSectionHtml}`;
   return docOpen + bodyContent + docClose;
 }
 
@@ -192,7 +205,7 @@ export function generateHistoryRecordPdf(record) {
     + 'tr:nth-child(even) td{background:#f9f9f9;}'
     + '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style></' + 'head><' + 'body>';
   const docClose = '</' + 'body></' + 'html>';
-  const bodyContent = `<h1>Work Session Summary</h1>${recName ? `<p><strong>Worker:</strong> ${recName}</p>` : ''}${recDoor ? `<p><strong>Door:</strong> #${recDoor}</p>` : ''}<p><strong>Date:</strong> ${record.dateStr || ''}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>`;
+  const bodyContent = `<h1>Work Session Summary</h1>${recName ? `<p><strong>${recName}</strong></p>` : ''}${recDoor ? `<p><strong>Door:</strong> #${recDoor}</p>` : ''}<p><strong>Date:</strong> ${record.dateStr || ''}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>`;
   const printWindow = window.open('', '_blank', 'width=900,height=1200');
   if (!printWindow) { alert('Please allow popups to export.'); return; }
   printWindow.document.write(docOpen + bodyContent + docClose);
@@ -290,4 +303,29 @@ export function renderSignoutSummary() {
   document.getElementById('so-worker-name').innerText = state.workerName ? state.workerName.toUpperCase() : '';
 
   document.getElementById('so-sku-rows').innerHTML = skuRowsHtml;
+
+  if (state.manifestBoxes > 0) {
+    dom.soTotalPayout.innerText = formatCurrency(calcTotalPayout(state.manifestBoxes));
+    dom.soEarnedPayout.innerText = formatCurrency(calcEarnedPayout(grandBoxes, state.manifestBoxes));
+    dom.soPayoutBox.classList.remove('hidden');
+    dom.soEarnedPayoutBox.classList.remove('hidden');
+  } else {
+    dom.soPayoutBox.classList.add('hidden');
+    dom.soEarnedPayoutBox.classList.add('hidden');
+  }
+
+  dom.soIncludeSoloCheckbox.checked = false;
+  renderSoloSummarySection();
 }
+
+function renderSoloSummarySection() {
+  const included = dom.soIncludeSoloCheckbox.checked;
+  dom.soSoloSection.classList.toggle('hidden', !included);
+  if (!included) return;
+  const rows = getSoloPalletBreakdown();
+  dom.soSoloRows.innerHTML = rows.length === 0
+    ? `<tr><td colspan="3">No solo pallets counted</td></tr>`
+    : rows.map(row => `<tr><td>${row.sku}</td><td>${row.count}</td><td>${row.boxes}</td></tr>`).join('');
+}
+
+dom.soIncludeSoloCheckbox.addEventListener('change', renderSoloSummarySection);

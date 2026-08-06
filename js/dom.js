@@ -7,6 +7,8 @@ export const dom = {
   dropdownMenu: document.getElementById('dropdown-menu'),
   menuItemLog: document.getElementById('menu-item-log'),
   menuItemSendersCount: document.getElementById('menu-item-senders-count'),
+  menuItemSoloPallets: document.getElementById('menu-item-solo-pallets'),
+  menuItemPayoutToggle: document.getElementById('menu-item-payout-toggle'),
   menuItemTheme: document.getElementById('menu-item-theme'),
   menuItemEndSession: document.getElementById('menu-item-endsession'),
   menuActiveSessionDivider: document.getElementById('menu-active-session-divider'),
@@ -19,6 +21,7 @@ export const dom = {
 
   workerNameInput: document.getElementById('worker-name-input'),
   doorNumInput: document.getElementById('door-num-input'),
+  sendersCountInput: document.getElementById('senders-count-input'),
   workerNameLabel: document.querySelector('label[for="worker-name-input"]'),
   doorNumLabel: document.querySelector('label[for="door-num-input"]'),
   btnViewHistory: document.getElementById('btn-view-history'),
@@ -51,6 +54,9 @@ export const dom = {
   grandTotalPallets: document.getElementById('grand-total-pallets'),
   boxPct: document.getElementById('box-pct'),
   palletPct: document.getElementById('pallet-pct'),
+  payoutBanner: document.getElementById('payout-banner'),
+  payoutEarned: document.getElementById('payout-earned'),
+  payoutTotal: document.getElementById('payout-total'),
   btnNewTrailer: document.getElementById('btn-new-trailer'),
   btnViewLog: document.getElementById('btn-view-log'),
   topActivityTicker: document.getElementById('top-activity-ticker'),
@@ -72,6 +78,18 @@ export const dom = {
   modalManifestPalletsInput: document.getElementById('modal-manifest-pallets-input'),
   modalSendersCancelBtn: document.getElementById('modal-senders-cancel-btn'),
   modalSendersSaveBtn: document.getElementById('modal-senders-save-btn'),
+  soloPalletsModalOverlay: document.getElementById('solo-pallets-modal-overlay'),
+  soloPalletsList: document.getElementById('solo-pallets-list'),
+  btnCloseSoloPalletsModal: document.getElementById('btn-close-solo-pallets-modal'),
 
-  startScreenThemeToggle: document.getElementById('start-screen-theme-toggle')
+  startScreenThemeToggle: document.getElementById('start-screen-theme-toggle'),
+
+  soIncludeSoloCheckbox: document.getElementById('so-include-solo-checkbox'),
+  soSoloSection: document.getElementById('so-solo-section'),
+  soSoloRows: document.getElementById('so-solo-rows'),
+
+  soPayoutBox: document.getElementById('so-payout-box'),
+  soTotalPayout: document.getElementById('so-total-payout'),
+  soEarnedPayoutBox: document.getElementById('so-earned-payout-box'),
+  soEarnedPayout: document.getElementById('so-earned-payout')
 };
