@@ -364,12 +364,7 @@ dom.btnSkipNameDoor.addEventListener('click', () => {
   if (!wVal && !dVal) {
     state.skipNameDoorMode = true;
     saveState();
-    startNewSession('', '', 0);
-    return;
-  }
-
-  if (!dVal || sendersCountVal <= 0) {
-    showError('error-message-1', "Door number and Sender's Count (total boxes) are required.");
+    startNewSession('', '', sendersCountVal);
     return;
   }
 
