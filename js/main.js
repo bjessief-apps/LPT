@@ -364,12 +364,7 @@ dom.btnSkipNameDoor.addEventListener('click', () => {
   if (!wVal && !dVal) {
     state.skipNameDoorMode = true;
     saveState();
-    startNewSession('', '', 0);
-    return;
-  }
-
-  if (!dVal || sendersCountVal <= 0) {
-    showError('error-message-1', "Door number and Sender's Count (total boxes) are required.");
+    startNewSession('', '', sendersCountVal);
     return;
   }
 
@@ -428,7 +423,7 @@ dom.btnMidAddSku.addEventListener('click', () => {
 dom.btnFinish.addEventListener('click', () => {
   const wVal = (dom.workerNameInput.value.trim() || state.workerName || '').trim();
   const dVal = dom.doorNumInput.value.trim();
-  const matchedRecord = findRecentHistoryMatch(wVal, dVal);
+  const matchedRecord = findRecentHistoryMatch(wVal, dVal, true);
 
   if (matchedRecord && dVal) {
     openThreeOptionModal(

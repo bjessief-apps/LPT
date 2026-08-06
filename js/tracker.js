@@ -474,13 +474,11 @@ function attachTiHiInput(el) {
 
 export function recalculateOverallTotals() {
   let grandBoxes = 0;
-  let grandPallets = 0;
   state.skus.forEach(sku => {
     const data = createTrackingEntry(state.trackingData[sku]);
     const perPallet = data.ti * data.hi;
     const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
     grandBoxes += data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
-    grandPallets += data.carryPallets + data.fullPallets + data.partialPallets.length;
   });
 
   // Check manifestBoxes: if left blank/0, display count without /
@@ -492,17 +490,6 @@ export function recalculateOverallTotals() {
   } else {
     dom.grandTotalBoxes.innerText = grandBoxes;
     dom.boxPct.classList.add('hidden');
-  }
-
-  // Check manifestPallets: if left blank/0, display count without /
-  if (state.manifestPallets > 0) {
-    dom.grandTotalPallets.innerText = `${grandPallets} / ${state.manifestPallets}`;
-    const palletPercentage = ((grandPallets / state.manifestPallets) * 100).toFixed(1);
-    dom.palletPct.innerText = `${palletPercentage}% Complete`;
-    dom.palletPct.classList.remove('hidden');
-  } else {
-    dom.grandTotalPallets.innerText = grandPallets;
-    dom.palletPct.classList.add('hidden');
   }
   updatePayoutDisplay();
 }

@@ -353,6 +353,9 @@ input[type=number] {
   padding: 0;
   margin-bottom: 12px;
 }
+.summary-banner.single {
+  grid-template-columns: 1fr;
+}
 .summary-card {
   text-align: center;
   background: var(--card-bg);
@@ -412,17 +415,11 @@ input[type=number] {
   margin-bottom: 12px;
   text-align: center;
 }
-.payout-banner .payout-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 2px;
-}
 .payout-banner .payout-amount {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: bold;
   color: var(--primary);
+  margin-bottom: 2px;
 }
 .payout-banner .payout-of {
   font-size: 13px;

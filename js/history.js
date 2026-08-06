@@ -5,14 +5,20 @@ import { dom } from './dom.js';
 import { getStoredHistory, deleteHistoryRecord } from './storage.js';
 import { createTrackingEntry } from './session.js';
 import { generateHistoryRecordPdf, generateHistoryActivityLogPdf } from './export.js';
+import { calcTotalPayout, calcEarnedPayout, formatCurrency } from './payout.js';
+import { setModalActionButtons } from './modal.js';
 
-export function findRecentHistoryMatch(workerNameValue, doorValue) {
+export function findRecentHistoryMatch(workerNameValue, doorValue, excludeCurrentSession = false) {
   if (!doorValue) return null;
   const history = getStoredHistory();
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000;
   const normalizedWorker = (workerNameValue || '').trim().toUpperCase();
   return history.find(h => {
+    // The in-progress session auto-saves itself to history as soon as it
+    // starts, so once a session is under way it would otherwise immediately
+    // show up as a "recent match" for its own door number.
+    if (excludeCurrentSession && state.startTime && h.timestamp === state.startTime) return false;
     if (String(h.doorNum) !== String(doorValue)) return false;
     const recTime = h.timestamp || 0;
     if ((now - recTime) > twentyFourHours) return false;
@@ -71,7 +77,7 @@ export function renderWorkHistory() {
         : '<div style="font-size:12px; color:var(--text-muted);">No count entries logged.</div>';
 
       const headerLabel = h.doorNum && displayName ? `Door #${h.doorNum} — ${displayName}` : h.doorNum ? `Door #${h.doorNum}` : displayName || 'Session';
-      html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>${headerLabel}</span><div style="display:flex;gap:6px;"><button class="secondary" data-summary-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Save Summary</button><button class="secondary" data-actlog-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Activity Log</button><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px; flex-wrap:wrap;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div><details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">Activity Log</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); max-height:180px; overflow:auto;">${countLogHtml}</div></details></div>`;
+      html += `<div class="history-item"><div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary); margin-bottom:4px;"><span>${headerLabel}</span><div style="display:flex;gap:6px;"><button class="secondary" data-payout-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">💰 Details</button><button class="secondary" data-summary-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Save Summary</button><button class="secondary" data-actlog-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Activity Log</button><button class="danger" data-id="${h.id}" style="width:auto; padding:2px 8px; font-size:11px; margin-bottom:0;">Delete</button></div></div><div style="font-size:13px; color:var(--text-color); display:flex; gap:15px; margin-top:6px; flex-wrap:wrap;"><span>Pallets: <strong>${h.totalPallets}</strong></span><span>Boxes: <strong>${h.totalBoxes}</strong></span><span>Duration: <strong>${h.durationStr}</strong></span></div><details style="margin-top:8px;"><summary style="cursor:pointer; font-weight:bold; color:var(--primary);">Activity Log</summary><div style="margin-top:8px; padding:8px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); max-height:180px; overflow:auto;">${countLogHtml}</div></details></div>`;
     });
     html += `</div>`;
   }
@@ -79,6 +85,20 @@ export function renderWorkHistory() {
   dom.historyListContainer.querySelectorAll('button[data-id]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       deleteHistoryRecord(e.target.getAttribute('data-id'));
+    });
+  });
+  dom.historyListContainer.querySelectorAll('button[data-payout-id]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const rec = state.historyRecordsCache[e.target.getAttribute('data-payout-id')];
+      if (!rec) return;
+      const bodyHtml = rec.manifestBoxes > 0
+        ? `<p style="margin:4px 0;"><strong>Total Payout:</strong> ${formatCurrency(calcTotalPayout(rec.manifestBoxes))}</p><p style="margin:4px 0;"><strong>Earned Payout:</strong> ${formatCurrency(calcEarnedPayout(rec.totalBoxes, rec.manifestBoxes))}</p>`
+        : `<p>No Sender's Count was recorded for this session.</p>`;
+      dom.modalTitle.innerText = 'Payout Details';
+      dom.modalBody.innerHTML = bodyHtml;
+      setModalActionButtons({ showConfirm: false, showSecondary: false });
+      dom.modalCancelBtn.innerText = 'Close';
+      dom.modalOverlay.classList.remove('hidden');
     });
   });
   dom.historyListContainer.querySelectorAll('button[data-summary-id]').forEach(btn => {

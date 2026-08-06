@@ -147,10 +147,10 @@ export function buildSummaryExportHtml() {
           : soloRows.map(row => `<tr><td>${row.sku}</td><td>${row.count}</td><td>${row.boxes}</td></tr>`).join('')
       }</tbody></table>`
     : '';
-  const payoutHtml = state.manifestBoxes > 0
-    ? `<p><strong>Total Payout:</strong> ${formatCurrency(calcTotalPayout(state.manifestBoxes))}</p><p><strong>Earned Payout:</strong> ${formatCurrency(calcEarnedPayout(grandBoxes, state.manifestBoxes))}</p>`
-    : '';
-  const bodyContent = `<h1>Work Session Summary</h1>${state.workerName ? `<p><strong>${state.workerName.toUpperCase()}</strong></p>` : ''}<p><strong>Door:</strong> ${state.doorNum || '---'}</p><p><strong>Total Boxes:</strong> ${grandBoxes}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p>${payoutHtml}<h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>${soloSectionHtml}`;
+  const boxesHtml = state.manifestBoxes > 0
+    ? `${grandBoxes} / ${state.manifestBoxes} (${((grandBoxes / state.manifestBoxes) * 100).toFixed(1)}% Complete)`
+    : `${grandBoxes}`;
+  const bodyContent = `<h1>Work Session Summary</h1>${state.workerName ? `<p><strong>${state.workerName.toUpperCase()}</strong></p>` : ''}<p><strong>Door:</strong> ${state.doorNum || '---'}</p><p><strong>Total Boxes:</strong> ${boxesHtml}</p><p><strong>Total Pallets:</strong> ${grandPallets}</p><p><strong>Avg Time / Pallet:</strong> ${avgMinutes ? `${avgMinutes} min` : 'N/A'}</p><p><strong>Duration:</strong> ${totalTimeDecimal}h</p><h3>SKU Breakdown</h3><table><thead><tr><th>SKU</th><th>Ti/Hi</th><th>Pallets Made</th><th>Total Boxes</th></tr></thead><tbody>${skuRowsHtml}</tbody></table>${soloSectionHtml}`;
   return docOpen + bodyContent + docClose;
 }
 
