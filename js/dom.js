@@ -7,6 +7,7 @@ export const dom = {
   dropdownMenu: document.getElementById('dropdown-menu'),
   menuItemLog: document.getElementById('menu-item-log'),
   menuItemSendersCount: document.getElementById('menu-item-senders-count'),
+  menuItemSoloPallets: document.getElementById('menu-item-solo-pallets'),
   menuItemTheme: document.getElementById('menu-item-theme'),
   menuItemEndSession: document.getElementById('menu-item-endsession'),
   menuActiveSessionDivider: document.getElementById('menu-active-session-divider'),
@@ -72,6 +73,13 @@ export const dom = {
   modalManifestPalletsInput: document.getElementById('modal-manifest-pallets-input'),
   modalSendersCancelBtn: document.getElementById('modal-senders-cancel-btn'),
   modalSendersSaveBtn: document.getElementById('modal-senders-save-btn'),
+  soloPalletsModalOverlay: document.getElementById('solo-pallets-modal-overlay'),
+  soloPalletsList: document.getElementById('solo-pallets-list'),
+  btnCloseSoloPalletsModal: document.getElementById('btn-close-solo-pallets-modal'),
 
-  startScreenThemeToggle: document.getElementById('start-screen-theme-toggle')
+  startScreenThemeToggle: document.getElementById('start-screen-theme-toggle'),
+
+  soIncludeSoloCheckbox: document.getElementById('so-include-solo-checkbox'),
+  soSoloSection: document.getElementById('so-solo-section'),
+  soSoloRows: document.getElementById('so-solo-rows')
 };

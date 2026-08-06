@@ -5,7 +5,7 @@ import { saveState, loadSavedSession, finalizeAndSaveSession } from './storage.j
 import { findRecentHistoryMatch, renderWorkHistory } from './history.js';
 import {
   createTrackingEntry, startNewSession, startNewSessionWithPreviousSkus,
-  restorePreviousDoorSession, renderLogModalList
+  restorePreviousDoorSession, renderLogModalList, getSoloPalletBreakdown
 } from './session.js';
 import { generateSummaryPdf, renderSignoutSummary } from './export.js';
 import { addSkuToList } from './sku.js';
@@ -70,8 +70,10 @@ dom.dropdownMenu.addEventListener('click', (e) => {
 export function updateMenuVisibility() {
   if (state.currentSection === 'tracking-section') {
     dom.menuItemSendersCount.classList.remove('hidden');
+    dom.menuItemSoloPallets.classList.remove('hidden');
   } else {
     dom.menuItemSendersCount.classList.add('hidden');
+    dom.menuItemSoloPallets.classList.add('hidden');
   }
 
   if (state.currentSection === 'tracking-section' || state.currentSection === 'setup-section') {
@@ -112,6 +114,23 @@ dom.menuItemSendersCount.addEventListener('click', () => {
   dom.modalManifestBoxesInput.value = state.manifestBoxes || '';
   dom.modalManifestPalletsInput.value = state.manifestPallets || '';
   dom.sendersCountModalOverlay.classList.remove('hidden');
+});
+
+function renderSoloPalletsList() {
+  const rows = getSoloPalletBreakdown();
+  dom.soloPalletsList.innerHTML = rows.length === 0
+    ? `<div style="color:var(--text-muted); text-align:center; padding:10px;">No solo pallets counted yet</div>`
+    : rows.map(row => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--border-color);"><span>SKU ${row.sku}</span><span><strong>${row.count}</strong> pallet${row.count === 1 ? '' : 's'} (${row.boxes} boxes)</span></div>`).join('');
+}
+
+dom.menuItemSoloPallets.addEventListener('click', () => {
+  dom.dropdownMenu.classList.remove('show');
+  renderSoloPalletsList();
+  dom.soloPalletsModalOverlay.classList.remove('hidden');
+});
+
+dom.btnCloseSoloPalletsModal.addEventListener('click', () => {
+  dom.soloPalletsModalOverlay.classList.add('hidden');
 });
 
 dom.menuItemLog.addEventListener('click', () => {

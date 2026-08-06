@@ -91,7 +91,7 @@ export function getTiHiString(data) {
   return data.ti > 0 && data.hi > 0 ? `${data.ti}/${data.hi}` : '-';
 }
 
-export function recordSkuEvent(sku, type, detail, tiHiAtMoment) {
+export function recordSkuEvent(sku, type, detail, tiHiAtMoment, solo = false) {
   const data = state.trackingData[sku];
   if (!data) return;
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -99,7 +99,8 @@ export function recordSkuEvent(sku, type, detail, tiHiAtMoment) {
     time,
     type,
     detail,
-    tihi: tiHiAtMoment || getTiHiString(data)
+    tihi: tiHiAtMoment || getTiHiString(data),
+    solo
   });
 }
 
@@ -168,6 +169,18 @@ export function getGrandTotalBoxes() {
     const partialPalletsSum = data.partialPallets.reduce((a, b) => a + b, 0);
     return sum + data.carryBoxes + (data.fullPallets * perPallet) + partialPalletsSum + data.partialBoxes;
   }, 0);
+}
+
+// Pallets counted while working alone are logged with `solo: true` on their
+// eventLog entry (see recordSkuEvent) rather than tracked in a separate
+// counter, so they stay perfectly consistent with the SKU's normal totals.
+export function getSoloPalletBreakdown() {
+  return state.skus.map(sku => {
+    const data = state.trackingData[sku] || createTrackingEntry();
+    const soloCount = (data.eventLog || []).filter(e => e.type === 'count' && e.detail === '+1 pallet' && e.solo).length;
+    const perPallet = data.ti * data.hi;
+    return { sku, count: soloCount, boxes: soloCount * perPallet };
+  }).filter(row => row.count > 0);
 }
 
 export function logEntry(sku, actionDescription) {

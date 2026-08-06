@@ -25,6 +25,7 @@
     <div id="dropdown-menu" class="dropdown-menu">
       <button id="menu-item-log" class="dropdown-item">📋 View Timestamps</button>
       <button id="menu-item-senders-count" class="dropdown-item hidden">📦 Sender's Count</button>
+      <button id="menu-item-solo-pallets" class="dropdown-item hidden">🧍 Solo Pallets</button>
       <button id="menu-item-theme" class="dropdown-item">🌓 Toggle Light/Dark Mode</button>
       <div id="menu-active-session-divider" class="dropdown-divider hidden"></div>
       <button id="menu-item-endsession" class="dropdown-item hidden">🚪 End Session</button>
@@ -152,6 +153,23 @@
       </thead>
       <tbody id="so-sku-rows"></tbody>
     </table>
+    <div style="margin-top:12px; display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="so-include-solo-checkbox" style="width:auto; margin:0;">
+      <label for="so-include-solo-checkbox" style="margin:0; font-size:13px; font-weight:normal; color:var(--text-muted); cursor:pointer;">Include solo pallet breakdown in summary</label>
+    </div>
+    <div id="so-solo-section" class="hidden" style="margin-top:10px;">
+      <h3 style="margin-bottom:6px;">Solo Pallets</h3>
+      <table class="summary-sku-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Solo Pallets</th>
+            <th>Solo Boxes</th>
+          </tr>
+        </thead>
+        <tbody id="so-solo-rows"></tbody>
+      </table>
+    </div>
   </div>
   <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
     <button id="btn-new-trailer" class="success" style="margin-bottom:0;">Finish Session</button>
@@ -197,6 +215,16 @@
       <button id="modal-senders-cancel-btn" class="secondary">Cancel</button>
       <button id="modal-senders-save-btn" class="success">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- SOLO PALLETS MODAL -->
+<div id="solo-pallets-modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card" style="max-width: 420px; text-align: left;">
+    <h3 style="text-align: center;">Solo Pallets</h3>
+    <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Pallets counted while working alone, by SKU. Counted the same as any other pallet in your totals.</p>
+    <div id="solo-pallets-list" style="max-height: 250px; overflow-y: auto; font-size: 13px;"></div>
+    <button id="btn-close-solo-pallets-modal" class="success" style="margin-top: 12px;">Close</button>
   </div>
 </div>
 
