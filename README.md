@@ -1,6 +1,6 @@
 # Lumper Pallet Tracker (LPT)
 
-LPT is a browser-based app for tracking pallet and box counts by SKU during a trailer unload shift.
+LPT is a browser-based app for tracking pallet and box counts by SKU during a trailer unload shift, built to support work in a lumper job position.
 
 ## What it does
 
@@ -15,6 +15,10 @@ LPT is a browser-based app for tracking pallet and box counts by SKU during a tr
 - Keeps an activity log and supports undo for the latest action.
 - Generates printable summaries and activity logs.
 - Stores work history locally in the browser.
+
+## Access
+
+This app is published and accessible through GitHub Pages on your GitHub.io site.
 
 ## How it works
 
@@ -63,16 +67,3 @@ No data is sent to a server.
 - `/home/runner/work/LPT/LPT/js/export.js` – printable summary/activity exports
 - `/home/runner/work/LPT/LPT/js/payout.js` – payout calculations and display
 - `/home/runner/work/LPT/LPT/js/modal.js` – shared modal behavior
-
-## Run locally
-
-Because this is a static frontend app, open `index.html` in a browser, or serve the folder with any static file server.
-
-Example:
-
-```bash
-cd /home/runner/work/LPT/LPT
-python3 -m http.server 8080
-```
-
-Then open `http://localhost:8080`.
