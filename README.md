@@ -2,8 +2,6 @@ https://bjessief-apps.github.io/LPT/
 
 # Lumper Pallet Tracker (LPT)
 
-LPT is a browser-based app for tracking pallet and box counts by SKU during a trailer unload shift, built to support work in a lumper job position.
-
 ## What it does
 
 - Starts a work session with optional worker name, door number, and sender's box count.
