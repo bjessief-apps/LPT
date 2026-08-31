@@ -41,29 +41,3 @@ The app is a single-page frontend (HTML/CSS/vanilla JS modules) with no backend.
 5. **History (`history-section`)**
    - View, filter, export, and delete saved past sessions.
 
-## Data and persistence
-
-Data is stored in `localStorage`:
-
-- `lpt_work_history`: saved session records
-- `lpt_saved_session`: in-progress snapshot
-- `lpt_theme`: light/dark theme preference
-- `lpt_payout_visible`: payout banner visibility
-
-No data is sent to a server.
-
-## Project structure
-
-- `/home/runner/work/LPT/LPT/index.html` – app layout and sections
-- `/home/runner/work/LPT/LPT/css/style.css` – styling/theme
-- `/home/runner/work/LPT/LPT/js/main.js` – app bootstrap, section switching, main event wiring
-- `/home/runner/work/LPT/LPT/js/state.js` – shared mutable session state
-- `/home/runner/work/LPT/LPT/js/dom.js` – cached DOM references
-- `/home/runner/work/LPT/LPT/js/sku.js` – SKU add/render/delete logic
-- `/home/runner/work/LPT/LPT/js/tracker.js` – counting interactions and totals
-- `/home/runner/work/LPT/LPT/js/session.js` – session lifecycle, undo, activity logging
-- `/home/runner/work/LPT/LPT/js/storage.js` – localStorage/history persistence
-- `/home/runner/work/LPT/LPT/js/history.js` – work history filtering/rendering
-- `/home/runner/work/LPT/LPT/js/export.js` – printable summary/activity exports
-- `/home/runner/work/LPT/LPT/js/payout.js` – payout calculations and display
-- `/home/runner/work/LPT/LPT/js/modal.js` – shared modal behavior
