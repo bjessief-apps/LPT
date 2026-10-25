@@ -10,7 +10,7 @@ import {
 import { generateSummaryPdf, renderSignoutSummary } from './export.js';
 import { addSkuToList } from './sku.js';
 import { renderTable, recalculateOverallTotals } from './tracker.js';
-import { togglePayoutVisibility } from './payout.js';
+import { togglePayoutVisibility, openPaySettings, isPayTracking } from './payout.js';
 
 // Theme Initialization
 const savedTheme = localStorage.getItem('lpt_theme') || 'dark';
@@ -72,7 +72,7 @@ export function updateMenuVisibility() {
   if (state.currentSection === 'tracking-section') {
     dom.menuItemSendersCount.classList.remove('hidden');
     dom.menuItemSoloPallets.classList.remove('hidden');
-    dom.menuItemPayoutToggle.classList.remove('hidden');
+    dom.menuItemPayoutToggle.classList.toggle('hidden', !isPayTracking());
   } else {
     dom.menuItemSendersCount.classList.add('hidden');
     dom.menuItemSoloPallets.classList.add('hidden');
@@ -135,6 +135,12 @@ dom.menuItemSoloPallets.addEventListener('click', () => {
 dom.btnCloseSoloPalletsModal.addEventListener('click', () => {
   dom.soloPalletsModalOverlay.classList.add('hidden');
 });
+
+dom.menuItemPaySettings.addEventListener('click', () => {
+  dom.dropdownMenu.classList.remove('show');
+  openPaySettings();
+});
+dom.btnOpenPaySettings.addEventListener('click', openPaySettings);
 
 dom.menuItemPayoutToggle.addEventListener('click', () => {
   dom.dropdownMenu.classList.remove('show');

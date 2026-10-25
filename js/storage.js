@@ -3,6 +3,7 @@
 import { state } from './state.js';
 import { createTrackingEntry } from './session.js';
 import { renderWorkHistory } from './history.js';
+import { getActiveTiers } from './payout.js';
 
 export function saveState() {
   const snapshot = {
@@ -102,6 +103,7 @@ export function buildSummaryRecord() {
     totalPallets: grandPallets,
     manifestBoxes: state.manifestBoxes,
     manifestPallets: state.manifestPallets,
+    payTiers: getActiveTiers(),
     skus: [...state.skus],
     trackingData: JSON.parse(JSON.stringify(state.trackingData)),
     activityLogs: JSON.parse(JSON.stringify(state.activityLogs))

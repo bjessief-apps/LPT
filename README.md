@@ -2,13 +2,14 @@
 
 **Try it:** https://bjessief-apps.github.io/LPT/ (works best on a phone)
 
-This was my first real app. I built it back when I was a lumper and we got paid by the box. I wanted to know exactly where I stood on a trailer, how many boxes were left and what I'd made so far, without doing the math in my head while I worked. You punch in the SKUs, set the Ti/Hi, and tap every time you finish a pallet.
+This was my first real app. I built it back when I was a lumper and we got paid by the box. I wanted to know exactly where I stood on a trailer, how many boxes were left and what I'd made so far, without doing the math in my head while I worked. Pay tracking is optional and works with any pay scale, so it fits however your company pays. You punch in the SKUs, set the Ti/Hi, and tap every time you finish a pallet.
 
 <table>
   <tr>
-    <td align="center"><img src="screenshots/1-start.png" width="220" alt="Start of shift"><br><sub>Start of shift</sub></td>
-    <td align="center"><img src="screenshots/2-add-skus.png" width="220" alt="Add the SKUs"><br><sub>Add the SKUs</sub></td>
-    <td align="center"><img src="screenshots/3-live-count.png" width="220" alt="Live count and payout"><br><sub>Live count and payout</sub></td>
+    <td align="center"><img src="screenshots/1-start.png" width="200" alt="Start of shift"><br><sub>Start of shift</sub></td>
+    <td align="center"><img src="screenshots/2-pay-tracking.png" width="200" alt="Optional pay table"><br><sub>Optional pay table</sub></td>
+    <td align="center"><img src="screenshots/3-live-count.png" width="200" alt="Live count"><br><sub>Live count</sub></td>
+    <td align="center"><img src="screenshots/4-summary.png" width="200" alt="End of session"><br><sub>End of session</sub></td>
   </tr>
 </table>
 
@@ -23,7 +24,7 @@ This was my first real app. I built it back when I was a lumper and we got paid 
   - unique/partial pallet counts (custom Ti/Hi)
   - loose box adds
 - Shows running totals and completion percentage when sender's count is provided.
-- Shows estimated payout progress based on sender's count tiers.
+- Optional pay tracking: if you're paid by box count, set up your own pay table ("up to 1,000 boxes pays $90", and so on) and watch your pay add up as you count. Leave it off if you don't need it.
 - Keeps an activity log and supports undo for the latest action.
 - Generates printable summaries and activity logs.
 - Stores work history locally in the browser.

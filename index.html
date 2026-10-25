@@ -26,7 +26,8 @@
       <button id="menu-item-log" class="dropdown-item">📋 View Timestamps</button>
       <button id="menu-item-senders-count" class="dropdown-item hidden">📦 Sender's Count</button>
       <button id="menu-item-solo-pallets" class="dropdown-item hidden">🧍 Solo Pallets</button>
-      <button id="menu-item-payout-toggle" class="dropdown-item hidden">💰 Show/Hide Payout</button>
+      <button id="menu-item-pay-settings" class="dropdown-item">💰 Pay Tracking</button>
+      <button id="menu-item-payout-toggle" class="dropdown-item hidden">👁️ Show/Hide Pay</button>
       <button id="menu-item-theme" class="dropdown-item">🌓 Toggle Light/Dark Mode</button>
       <div id="menu-active-session-divider" class="dropdown-divider hidden"></div>
       <button id="menu-item-endsession" class="dropdown-item hidden">🚪 End Session</button>
@@ -54,6 +55,7 @@
     <button id="btn-view-history" class="secondary" type="button" style="width:auto; padding:12px 18px;">Work History</button>
     <button id="btn-skip-name-door" class="btn-skip-option" type="button">Skip</button>
   </div>
+  <button id="btn-open-pay-settings" class="text-link-btn" type="button">💰 Track my pay (optional)</button>
 </div>
 
 <!-- PHASE 2: SKU SETUP -->
@@ -88,8 +90,8 @@
   </div>
 
   <div id="payout-banner" class="payout-banner hidden">
-    <div class="payout-amount">Earned Payout <span id="payout-earned">$0.00</span></div>
-    <div class="payout-of">of <span id="payout-total">$0.00</span> total container</div>
+    <div class="payout-amount">Earned so far <span id="payout-earned">$0.00</span></div>
+    <div class="payout-of">of <span id="payout-total">$0.00</span> for this container</div>
   </div>
 
   <div class="add-sku-bar">
@@ -143,11 +145,11 @@
         <div class="big-val" id="so-total-time">0.00h</div>
       </div>
       <div class="so-stat-box hidden" id="so-payout-box">
-        <label>total payout</label>
+        <label>container pay</label>
         <div class="big-val" id="so-total-payout">$0.00</div>
       </div>
       <div class="so-stat-box hidden" id="so-earned-payout-box">
-        <label>earned payout</label>
+        <label>earned pay</label>
         <div class="big-val" id="so-earned-payout">$0.00</div>
       </div>
     </div>
@@ -235,6 +237,29 @@
     <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Pallets counted while working alone, by SKU. Counted the same as any other pallet in your totals.</p>
     <div id="solo-pallets-list" style="max-height: 250px; overflow-y: auto; font-size: 13px;"></div>
     <button id="btn-close-solo-pallets-modal" class="success" style="margin-top: 12px;">Close</button>
+  </div>
+</div>
+
+<!-- PAY TRACKING MODAL -->
+<div id="pay-modal-overlay" class="modal-overlay hidden">
+  <div class="modal-card" style="max-width: 460px; text-align: left;">
+    <h3 style="text-align: center;">Pay Tracking</h3>
+    <label class="pay-switch">
+      <input type="checkbox" id="pay-enabled-checkbox">
+      <span>Track my pay on each container</span>
+    </label>
+    <div id="pay-table-wrap">
+      <p class="pay-help">If you're paid by box count, add a row for each range. Pay is based on the sender's count, and adds up as you count.</p>
+      <div class="pay-row pay-head"><span>Up to (boxes)</span><span>Pay</span><span></span></div>
+      <div id="pay-rows"></div>
+      <button id="pay-add-row-btn" type="button" class="secondary pay-add-row">+ Add row</button>
+      <p class="pay-help">Containers bigger than your last row pay that row's amount.</p>
+    </div>
+    <div id="pay-error" class="error-msg"></div>
+    <div class="modal-actions">
+      <button id="pay-cancel-btn" class="secondary">Cancel</button>
+      <button id="pay-save-btn" class="success">Save</button>
+    </div>
   </div>
 </div>
 

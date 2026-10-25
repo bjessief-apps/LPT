@@ -4,7 +4,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { createTrackingEntry, getSoloPalletBreakdown } from './session.js';
-import { calcTotalPayout, calcEarnedPayout, formatCurrency } from './payout.js';
+import { calcTotalPayout, calcEarnedPayout, formatCurrency, isPayTracking } from './payout.js';
 
 export function buildSkuSummaryRows(sku, data, totalSkuBoxes, bold) {
   const skuCell = bold ? `<strong>${sku}</strong>` : sku;
@@ -304,7 +304,7 @@ export function renderSignoutSummary() {
 
   document.getElementById('so-sku-rows').innerHTML = skuRowsHtml;
 
-  if (state.manifestBoxes > 0) {
+  if (isPayTracking() && state.manifestBoxes > 0) {
     dom.soTotalPayout.innerText = formatCurrency(calcTotalPayout(state.manifestBoxes));
     dom.soEarnedPayout.innerText = formatCurrency(calcEarnedPayout(grandBoxes, state.manifestBoxes));
     dom.soPayoutBox.classList.remove('hidden');
