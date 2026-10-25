@@ -1,6 +1,18 @@
-https://bjessief-apps.github.io/LPT/
-
 # Lumper Pallet Tracker (LPT)
+
+**Try it:** https://bjessief-apps.github.io/LPT/ (works best on a phone)
+
+This was my first real app. I built it back when I was a lumper and we got paid by the box. I wanted to know exactly where I stood on a trailer, how many boxes were left and what I'd made so far, without doing the math in my head while I worked. You punch in the SKUs, set the Ti/Hi, and tap every time you finish a pallet.
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/1-start.png" width="220" alt="Start of shift"><br><sub>Start of shift</sub></td>
+    <td align="center"><img src="screenshots/2-add-skus.png" width="220" alt="Add the SKUs"><br><sub>Add the SKUs</sub></td>
+    <td align="center"><img src="screenshots/3-live-count.png" width="220" alt="Live count and payout"><br><sub>Live count and payout</sub></td>
+  </tr>
+</table>
+
+<sub>Screenshots use made-up sample names and numbers.</sub>
 
 ## What it does
 
